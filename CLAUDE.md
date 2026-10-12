@@ -28,7 +28,8 @@ When a phase ends: update "Current status", run `graphify update .` if code chan
 ## Stack
 - Python 3.12+ (local: 3.13)
 - PostgreSQL 17 via `docker compose` (OLTP), local port 5433
-- OLAP: [defined in the Phase 1 plan, pending human approval]
+- OLAP: DuckDB (embedded, star schema in `data/olap.duckdb`)
+- Dependencies approved by the human: `duckdb`, `psycopg[binary]`; HTTP via the standard library
 - Testing: pytest
 - Lint and format: ruff
 
@@ -50,10 +51,10 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
   `https://data.cityofnewyork.us/resource/erm2-nwe9.json`): 22.7 M rows measured
   (2020-01-01 to 2026-10-10), pages of up to 50,000 rows, no throttling with an app token.
 - **Phase 1 (constitution, spec, plan): in progress.** Constitution v1.0.0 ratified, spec
-  `specs/001-nyc311-oltp-olap-benchmark/spec.md` approved, plan being drafted on branch
-  `001-nyc311-oltp-olap-benchmark`.
-- Pending from the human: approve the OLAP engine and the new dependencies, create a
-  Socrata app token, and start Docker Desktop before Phase 2.
+  `specs/001-nyc311-oltp-olap-benchmark/spec.md` approved, plan approved (DuckDB as OLAP
+  engine) on branch `001-nyc311-oltp-olap-benchmark`. Tasks being generated.
+- Pending from the human: create a Socrata app token and start Docker Desktop before
+  Phase 2.
 
 ## Log for AI_WORKFLOW.md
 Real corrections made to AI-generated work, to be documented at the end:
