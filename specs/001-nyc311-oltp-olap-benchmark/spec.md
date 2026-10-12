@@ -1,262 +1,261 @@
-# Feature Specification: Benchmark OLTP vs OLAP sobre NYC 311
+# Feature Specification: OLTP vs OLAP Benchmark on NYC 311
 
 **Feature Branch**: `001-nyc311-oltp-olap-benchmark`  
 **Created**: 2026-10-12  
 **Status**: Approved (2026-10-12)  
-**Input**: User description: "Benchmark OLTP vs OLAP sobre NYC 311 Service Requests: ingesta desde la API pública, modelo OLTP normalizado, modelo OLAP en esquema estrella, conjunto fijo de consultas analíticas, script de benchmark con resultados en results/ y tests de integración de equivalencia."
+**Input**: User description: "OLTP vs OLAP benchmark on NYC 311 Service Requests: ingestion from the public API, normalized OLTP model, OLAP star-schema model, a fixed set of analytical queries, a benchmark script with results in results/, and integration tests for equivalence."
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Cargar los mismos datos en ambos modelos (Priority: P1)
+### User Story 1 - Load the same data into both models (Priority: P1)
 
-Como evaluador del reto, quiero obtener las solicitudes de servicio de NYC 311 desde su API
-pública y dejarlas cargadas en un modelo transaccional normalizado y en un modelo analítico
-en estrella, para que cualquier comparación posterior parta exactamente de los mismos datos.
+As an evaluator of the challenge, I want to fetch NYC 311 service requests from the public
+API and have them loaded into a normalized transactional model and into an analytical star
+model, so that any later comparison starts from exactly the same data.
 
-**Why this priority**: sin datos idénticos en ambos modelos no hay benchmark defendible. Es
-la base de todo lo demás y por sí sola ya demuestra la ingesta y los dos diseños de datos.
+**Why this priority**: without identical data in both models there is no defensible
+benchmark. It is the foundation for everything else and on its own already demonstrates the
+ingestion and both data designs.
 
-**Independent Test**: ejecutar la carga con un volumen reducido y comprobar que ambos modelos
-reportan el mismo número de solicitudes y los mismos totales por dimensión.
+**Independent Test**: run the load with a reduced volume and check that both models report
+the same number of requests and the same totals per dimension.
 
 **Acceptance Scenarios**:
 
-1. **Given** una base vacía y acceso a la API, **When** se ejecuta la carga con un volumen
-   objetivo, **Then** ambos modelos contienen ese número de solicitudes, sin duplicados.
-2. **Given** una carga ya completada, **When** se vuelve a ejecutar con los mismos
-   parámetros, **Then** el número de solicitudes en ambos modelos no cambia.
-3. **Given** una carga interrumpida a la mitad, **When** se relanza, **Then** continúa desde
-   el último punto confirmado sin volver a descargar lo ya cargado.
-4. **Given** que la API responde con un error temporal o de exceso de peticiones, **When**
-   la carga está en curso, **Then** espera, reintenta y termina sin perder ni duplicar filas.
-5. **Given** que no hay credencial de la API configurada, **When** se lanza la carga,
-   **Then** se informa de ello con un mensaje claro antes de descargar nada.
+1. **Given** an empty database and API access, **When** the load runs with a target volume,
+   **Then** both models contain that number of requests, with no duplicates.
+2. **Given** a completed load, **When** it is run again with the same parameters, **Then**
+   the number of requests in both models does not change.
+3. **Given** a load interrupted halfway, **When** it is relaunched, **Then** it continues
+   from the last confirmed point without downloading again what is already loaded.
+4. **Given** the API answers with a temporary error or a too-many-requests error, **When**
+   the load is in progress, **Then** it waits, retries and finishes without losing or
+   duplicating rows.
+5. **Given** no API credential is configured, **When** the load is launched, **Then** this
+   is reported with a clear message before anything is downloaded.
 
 ---
 
-### User Story 2 - Medir las consultas analíticas en ambos modelos (Priority: P1)
+### User Story 2 - Measure the analytical queries on both models (Priority: P1)
 
-Como evaluador, quiero ejecutar un único comando que mida un conjunto fijo de consultas
-analíticas en los dos modelos y me entregue los tiempos comparados, para ver con números la
-diferencia de rendimiento.
+As an evaluator, I want to run a single command that measures a fixed set of analytical
+queries on both models and gives me the compared timings, so that I can see the performance
+difference in numbers.
 
-**Why this priority**: es el entregable central del reto: la evidencia medible.
+**Why this priority**: it is the central deliverable of the challenge: the measurable
+evidence.
 
-**Independent Test**: con ambos modelos cargados, ejecutar el benchmark y verificar que
-produce un informe con tiempos por consulta y por modelo, y el factor de diferencia.
+**Independent Test**: with both models loaded, run the benchmark and verify that it produces
+a report with timings per query and per model, and the difference factor.
 
 **Acceptance Scenarios**:
 
-1. **Given** ambos modelos cargados, **When** se ejecuta el benchmark, **Then** cada consulta
-   se mide en los dos modelos con ejecuciones de calentamiento descartadas y varias
-   repeticiones medidas.
-2. **Given** un benchmark terminado, **When** se abre el directorio de resultados, **Then**
-   hay un archivo legible por máquina y un resumen legible por humanos con mediana,
-   percentiles y factor de diferencia por consulta.
-3. **Given** un benchmark terminado, **When** se lee el informe, **Then** constan el volumen
-   de datos, el entorno de ejecución, la fecha y los parámetros de medición.
-4. **Given** que la diferencia no alcanza el umbral de significancia, **When** termina el
-   benchmark, **Then** el informe lo declara explícitamente y no se altera ningún dato.
-5. **Given** un evaluador con poco tiempo, **When** ejecuta carga, benchmark y tests con el
-   perfil rápido, **Then** todo termina en minutos y el informe advierte que esos tiempos no
-   son los oficiales.
-6. **Given** un evaluador que no quiere ejecutar nada, **When** abre el repositorio, **Then**
-   encuentra los resultados oficiales del perfil completo ya publicados.
+1. **Given** both models loaded, **When** the benchmark runs, **Then** every query is
+   measured on both models with discarded warm-up runs and several measured repetitions.
+2. **Given** a finished benchmark, **When** the results directory is opened, **Then** there
+   is a machine-readable file and a human-readable summary with median, percentiles and
+   difference factor per query.
+3. **Given** a finished benchmark, **When** the report is read, **Then** it states the data
+   volume, the execution environment, the date and the measurement parameters.
+4. **Given** the difference does not reach the significance threshold, **When** the
+   benchmark ends, **Then** the report states it explicitly and no data is altered.
+5. **Given** an evaluator short on time, **When** they run load, benchmark and tests with the
+   quick profile, **Then** everything finishes in minutes and the report warns that those
+   timings are not the official ones.
+6. **Given** an evaluator who does not want to run anything, **When** they open the
+   repository, **Then** they find the official results of the full profile already published.
 
 ---
 
-### User Story 3 - Verificar que ambos modelos responden lo mismo (Priority: P2)
+### User Story 3 - Verify that both models give the same answers (Priority: P2)
 
-Como evaluador, quiero tests automáticos que confirmen que cada consulta devuelve resultados
-equivalentes en los dos modelos, para confiar en que se comparan respuestas iguales.
+As an evaluator, I want automated tests confirming that every query returns equivalent
+results on both models, so that I can trust that equal answers are being compared.
 
-**Why this priority**: da validez a los números; sin ella la diferencia podría deberse a que
-los modelos responden preguntas distintas.
+**Why this priority**: it gives the numbers their validity; without it the difference could
+be due to the models answering different questions.
 
-**Independent Test**: ejecutar la suite de integración sobre una carga reducida y comprobar
-que pasa; alterar una fila en un solo modelo y comprobar que falla.
+**Independent Test**: run the integration suite on a reduced load and check that it passes;
+alter one row in a single model and check that it fails.
 
 **Acceptance Scenarios**:
 
-1. **Given** ambos modelos cargados, **When** se ejecutan los tests de integración, **Then**
-   se verifica que el número de solicitudes y los totales por dimensión coinciden.
-2. **Given** ambos modelos cargados, **When** se ejecuta cada consulta del benchmark en los
-   dos, **Then** los resultados son equivalentes (mismas filas y valores, con tolerancia
-   numérica documentada para promedios).
-3. **Given** una discrepancia entre modelos, **When** se ejecutan los tests, **Then** fallan
-   indicando qué consulta o qué total difiere.
+1. **Given** both models loaded, **When** the integration tests run, **Then** they verify
+   that the number of requests and the totals per dimension match.
+2. **Given** both models loaded, **When** every benchmark query runs on both, **Then** the
+   results are equivalent (same rows and values, with a documented numeric tolerance for
+   averages).
+3. **Given** a discrepancy between models, **When** the tests run, **Then** they fail and
+   indicate which query or which total differs.
 
 ---
 
-### User Story 4 - Mostrar el contraste en operaciones transaccionales (Priority: P3)
+### User Story 4 - Show the contrast on transactional operations (Priority: P3)
 
-Como evaluador, quiero ver también cómo se comportan ambos modelos en operaciones
-transaccionales típicas (consultar una solicitud por su identificador, registrar una nueva),
-para entender el compromiso completo y no solo el lado favorable al modelo analítico.
+As an evaluator, I also want to see how both models behave on typical transactional
+operations (looking up a request by its identifier, registering a new one), to understand
+the full trade-off and not only the side that favors the analytical model.
 
-**Why this priority**: enriquece la conclusión, pero el reto se cumple sin ella. Se implementa
-solo si queda tiempo una vez cumplidas las historias 1 a 3.
+**Why this priority**: it enriches the conclusion, but the challenge is fulfilled without
+it. It is implemented only if time remains once stories 1 to 3 are complete.
 
-**Independent Test**: ejecutar el benchmark con el grupo de operaciones transaccionales
-activado y comprobar que el informe las presenta separadas de las analíticas.
+**Independent Test**: run the benchmark with the transactional operations group enabled and
+check that the report presents them separately from the analytical ones.
 
 **Acceptance Scenarios**:
 
-1. **Given** ambos modelos cargados, **When** se ejecuta el grupo transaccional, **Then** el
-   informe muestra sus tiempos en una sección distinta de las consultas analíticas.
+1. **Given** both models loaded, **When** the transactional group runs, **Then** the report
+   shows its timings in a section separate from the analytical queries.
 
 ---
 
 ### Edge Cases
 
-- Solicitudes sin fecha de cierre (aún abiertas): no tienen tiempo de resolución y no deben
-  contar en promedios de resolución, pero sí en conteos.
-- Solicitudes con fecha de cierre anterior a la de creación: se cargan, se marcan como
-  inválidas para la medida de resolución y se cuentan en el informe de calidad de datos.
-- Valores de dimensión ausentes o vacíos (borough, código postal, canal): se asignan a un
-  miembro "Desconocido" en ambos modelos, nunca se descartan en uno solo.
-- La fuente añade o modifica solicitudes mientras dura la carga: la carga trabaja sobre un
-  corte fijo (rango de fechas de creación cerrado) con un orden estable de paginación.
-- La API devuelve menos filas de las pedidas o una página vacía antes de alcanzar el objetivo.
-- El volumen objetivo pedido supera las filas disponibles en el rango elegido.
-- El benchmark se lanza con un modelo vacío o con conteos distintos entre modelos: debe
-  negarse a medir y explicar por qué.
+- Requests without a closing date (still open): they have no resolution time and must not
+  count in resolution averages, but they do count in totals.
+- Requests whose closing date precedes their creation date: they are loaded, flagged as
+  invalid for the resolution measure, and counted in the data-quality report.
+- Missing or empty dimension values (borough, ZIP code, channel): they are assigned to an
+  "Unknown" member in both models, never dropped in only one.
+- The source adds or modifies requests while the load is running: the load works on a fixed
+  cut (closed range of creation dates) with a stable pagination order.
+- The API returns fewer rows than requested or an empty page before the target is reached.
+- The requested target volume exceeds the rows available in the chosen range.
+- The benchmark is launched with an empty model or with different counts between models: it
+  must refuse to measure and explain why.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-**Ingesta**
+**Ingestion**
 
-- **FR-001**: El sistema DEBE obtener las solicitudes de servicio de NYC 311 desde su API
-  pública, por páginas y en un orden estable.
-- **FR-002**: El volumen objetivo DEBE ser configurable, con dos perfiles predefinidos:
-  **completo** (5.000.000 de solicitudes, el de los resultados oficiales) y **rápido**
-  (200.000 solicitudes, para que un evaluador verifique el funcionamiento en minutos). El
-  mínimo aceptado es 100.000.
-- **FR-003**: La ingesta DEBE trabajar sobre un corte fijo y declarado de los datos (rango de
-  fechas de creación), de modo que dos cargas con los mismos parámetros obtengan lo mismo.
-- **FR-004**: La ingesta DEBE ser idempotente: reejecutarla no duplica solicitudes.
-- **FR-005**: La ingesta DEBE ser reanudable tras una interrupción, desde el último punto
-  confirmado.
-- **FR-006**: La ingesta DEBE respetar los límites de la API, reintentando con espera ante
-  errores temporales y deteniéndose con un mensaje claro ante errores persistentes.
-- **FR-007**: La credencial de la API DEBE leerse del entorno y no quedar nunca en el
-  repositorio ni en los registros de ejecución.
-- **FR-008**: La ingesta DEBE informar su progreso y, al terminar, un resumen: filas
-  cargadas, filas rechazadas con su motivo y duración.
+- **FR-001**: The system MUST fetch NYC 311 service requests from the public API, page by
+  page and in a stable order.
+- **FR-002**: The target volume MUST be configurable, with two predefined profiles: **full**
+  (5,000,000 requests, the one used for the official results) and **quick** (200,000
+  requests, so that an evaluator can verify everything works in minutes). The accepted
+  minimum is 100,000.
+- **FR-003**: Ingestion MUST work on a fixed, declared cut of the data (range of creation
+  dates), so that two loads with the same parameters obtain the same rows.
+- **FR-004**: Ingestion MUST be idempotent: re-running it does not duplicate requests.
+- **FR-005**: Ingestion MUST be resumable after an interruption, from the last confirmed
+  point.
+- **FR-006**: Ingestion MUST respect the API limits, retrying with a wait on temporary errors
+  and stopping with a clear message on persistent errors.
+- **FR-007**: The API credential MUST be read from the environment and never appear in the
+  repository or in execution logs.
+- **FR-008**: Ingestion MUST report its progress and, on completion, a summary: rows loaded,
+  rows rejected with their reason, and duration.
 
-**Modelos de datos**
+**Data models**
 
-- **FR-009**: El modelo transaccional DEBE estar normalizado: la solicitud referencia a
-  agencia, tipo de reclamo con su descriptor, ubicación, canal y estado, cada uno almacenado
-  una sola vez.
-- **FR-010**: El modelo analítico DEBE organizarse como esquema estrella: un hecho por
-  solicitud con dimensiones de tiempo, agencia, tipo de reclamo, ubicación y canal, y el
-  tiempo de resolución como medida.
-- **FR-011**: Ambos modelos DEBEN derivarse de la misma carga y contener exactamente el
-  mismo conjunto de solicitudes.
-- **FR-012**: Los valores ausentes en una dimensión DEBEN tratarse igual en ambos modelos.
+- **FR-009**: The transactional model MUST be normalized: the request references agency,
+  complaint type with its descriptor, location, channel and status, each stored only once.
+- **FR-010**: The analytical model MUST be organized as a star schema: one fact per request
+  with time, agency, complaint type, location and channel dimensions, and resolution time as
+  a measure.
+- **FR-011**: Both models MUST derive from the same load and contain exactly the same set of
+  requests.
+- **FR-012**: Missing values in a dimension MUST be treated identically in both models.
 
-**Consultas y benchmark**
+**Queries and benchmark**
 
-- **FR-013**: El sistema DEBE definir un conjunto fijo de al menos 6 consultas analíticas,
-  cada una con su pregunta de negocio documentada, que cubra: agregación por período,
-  top-N, filtro por dimensión y medida de resolución. Como mínimo incluye:
-  - solicitudes por tipo de reclamo y mes, por borough;
-  - los 10 tipos de reclamo más frecuentes por código postal con su tiempo medio de
-    resolución;
-  - tasa de cierre en 30 días por agencia y canal.
-- **FR-014**: Cada consulta DEBE expresarse con la misma lógica en los dos modelos.
-- **FR-015**: El benchmark DEBE medir cada consulta en cada modelo con al menos 1 ejecución
-  de calentamiento descartada y al menos 10 repeticiones medidas, ambas configurables.
-- **FR-016**: El benchmark DEBE reportar por consulta y modelo: mediana, percentil 95,
-  mínimo, máximo y el factor de diferencia entre modelos sobre la mediana.
-- **FR-017**: El benchmark DEBE escribir en `results/` un archivo legible por máquina y un
-  resumen legible por humanos, que incluyan volumen de datos, entorno de ejecución, fecha y
-  parámetros de medición.
-- **FR-018**: El benchmark DEBE negarse a medir si los modelos no contienen el mismo número
-  de solicitudes.
-- **FR-019**: El informe DEBE declarar si se alcanza el umbral de significancia (SC-003). Si
-  no se alcanza, lo indica explícitamente; en ningún caso se modifican datos, consultas o
-  configuración para alcanzarlo.
-- **FR-020**: El benchmark PUEDE incluir un grupo separado de operaciones transaccionales
-  (lectura de una solicitud por identificador y alta de una solicitud), reportado aparte de
-  las consultas analíticas.
+- **FR-013**: The system MUST define a fixed set of at least 6 analytical queries, each with
+  its business question documented, covering: aggregation by period, top-N, filter by
+  dimension, and the resolution measure. At minimum it includes:
+  - requests by complaint type and month, per borough;
+  - the 10 most frequent complaint types per ZIP code with their average resolution time;
+  - 30-day closure rate by agency and channel.
+- **FR-014**: Each query MUST be expressed with the same logic on both models.
+- **FR-015**: The benchmark MUST measure each query on each model with at least 1 discarded
+  warm-up run and at least 10 measured repetitions, both configurable.
+- **FR-016**: The benchmark MUST report per query and model: median, 95th percentile,
+  minimum, maximum, and the difference factor between models on the median.
+- **FR-017**: The benchmark MUST write to `results/` a machine-readable file and a
+  human-readable summary, including data volume, execution environment, date and measurement
+  parameters.
+- **FR-018**: The benchmark MUST refuse to measure if the models do not contain the same
+  number of requests.
+- **FR-019**: The report MUST state whether the significance threshold (SC-003) is reached.
+  If it is not, it says so explicitly; under no circumstances are data, queries or
+  configuration modified in order to reach it.
+- **FR-020**: The benchmark MAY include a separate group of transactional operations (reading
+  one request by identifier and inserting one request), reported apart from the analytical
+  queries.
 
-**Verificación**
+**Verification**
 
-- **FR-021**: Tests de integración DEBEN verificar, contra los dos modelos reales, que el
-  número de solicitudes y los totales por cada dimensión coinciden.
-- **FR-022**: Tests de integración DEBEN verificar que cada consulta del benchmark devuelve
-  resultados equivalentes en ambos modelos.
-- **FR-023**: Los tests de integración DEBEN poder ejecutarse sobre un volumen reducido sin
-  depender de la carga completa.
+- **FR-021**: Integration tests MUST verify, against the two real models, that the number of
+  requests and the totals per dimension match.
+- **FR-022**: Integration tests MUST verify that every benchmark query returns equivalent
+  results on both models.
+- **FR-023**: Integration tests MUST be runnable on a reduced volume without depending on the
+  full load.
 
-**Reproducción por el evaluador**
+**Reproduction by the evaluator**
 
-- **FR-024**: Los resultados oficiales, medidos con el perfil completo, DEBEN publicarse en
-  `results/` dentro del repositorio, de modo que puedan consultarse sin ejecutar nada.
-- **FR-025**: El perfil rápido DEBE ejecutar la misma carga, las mismas consultas y los
-  mismos tests que el completo, cambiando únicamente el volumen.
-- **FR-026**: Todo informe de resultados DEBE indicar con qué perfil y volumen se generó. El
-  umbral de significancia (SC-003) se evalúa solo sobre el perfil completo; un informe del
-  perfil rápido DEBE advertir que sus tiempos no son los oficiales.
+- **FR-024**: The official results, measured with the full profile, MUST be published in
+  `results/` inside the repository, so that they can be read without running anything.
+- **FR-025**: The quick profile MUST run the same load, the same queries and the same tests
+  as the full one, changing only the volume.
+- **FR-026**: Every results report MUST state which profile and volume produced it. The
+  significance threshold (SC-003) is evaluated only on the full profile; a quick-profile
+  report MUST warn that its timings are not the official ones.
 
 ### Key Entities
 
-- **Solicitud de servicio**: un reclamo o aviso de un ciudadano. Tiene identificador único de
-  origen, fecha de creación, fecha de cierre (opcional) y referencias a agencia, tipo de
-  reclamo, ubicación, canal y estado.
-- **Agencia**: organismo municipal responsable de atender la solicitud.
-- **Tipo de reclamo**: categoría de la solicitud, con un descriptor más específico.
-- **Ubicación**: borough, código postal y community board donde ocurre el problema.
-- **Canal**: medio por el que se registró la solicitud (teléfono, web, móvil u otro).
-- **Estado**: situación de la solicitud (abierta, cerrada, etc.).
-- **Tiempo**: fecha de creación descompuesta en día, mes, trimestre, año y día de la semana.
-- **Tiempo de resolución**: medida derivada, diferencia entre cierre y creación.
-- **Consulta de benchmark**: pregunta de negocio con su expresión equivalente en cada modelo.
-- **Ejecución de benchmark**: conjunto de mediciones con su entorno, volumen y parámetros.
+- **Service request**: a complaint or notice from a citizen. It has a unique source
+  identifier, a creation date, an optional closing date, and references to agency, complaint
+  type, location, channel and status.
+- **Agency**: the city body responsible for handling the request.
+- **Complaint type**: the category of the request, with a more specific descriptor.
+- **Location**: borough, ZIP code and community board where the problem occurs.
+- **Channel**: the means by which the request was registered (phone, web, mobile or other).
+- **Status**: the state of the request (open, closed, etc.).
+- **Time**: the creation date broken down into day, month, quarter, year and day of week.
+- **Resolution time**: derived measure, the difference between closing and creation.
+- **Benchmark query**: a business question with its equivalent expression on each model.
+- **Benchmark run**: a set of measurements with its environment, volume and parameters.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Una persona con el repositorio y una credencial de la API reproduce carga,
-  benchmark y tests siguiendo solo el README, con no más de 5 comandos.
-- **SC-002**: Con el perfil completo (5.000.000 de solicitudes), el proceso entero de
-  preparación de datos —descarga desde la API y carga en ambos modelos— termina en menos de
-  1 hora en un portátil con conexión doméstica.
-- **SC-003**: La diferencia se considera significativa si, con el perfil completo, el modelo
-  analítico es al menos 3 veces más rápido en la mediana en al menos dos tercios de las
-  consultas analíticas.
-- **SC-004**: El 100 % de las consultas del benchmark devuelve resultados equivalentes en
-  ambos modelos, verificado por los tests de integración.
-- **SC-005**: Relanzar una carga completada deja el número de solicitudes sin cambios (0
-  duplicados) en ambos modelos.
-- **SC-006**: Dos ejecuciones consecutivas del benchmark sobre los mismos datos dan medianas
-  que difieren menos de un 20 % por consulta y modelo.
-- **SC-007**: El informe de resultados permite a un lector identificar en menos de 1 minuto
-  qué modelo gana en cada consulta y por cuánto.
-- **SC-008**: Con el perfil rápido (200.000 solicitudes), un evaluador completa carga,
-  benchmark y tests de integración en menos de 10 minutos.
-- **SC-009**: Un evaluador puede leer los resultados oficiales en el repositorio sin ejecutar
-  ningún comando.
+- **SC-001**: A person with the repository and an API credential reproduces load, benchmark
+  and tests by following only the README, with no more than 5 commands.
+- **SC-002**: With the full profile (5,000,000 requests), the whole data preparation process
+  — download from the API and load into both models — finishes in under 1 hour on a laptop
+  with a home connection.
+- **SC-003**: The difference is considered significant if, with the full profile, the
+  analytical model is at least 3 times faster on the median in at least two thirds of the
+  analytical queries.
+- **SC-004**: 100% of the benchmark queries return equivalent results on both models, as
+  verified by the integration tests.
+- **SC-005**: Relaunching a completed load leaves the number of requests unchanged (0
+  duplicates) in both models.
+- **SC-006**: Two consecutive benchmark runs on the same data give medians that differ by
+  less than 20% per query and model.
+- **SC-007**: The results report lets a reader identify in under 1 minute which model wins
+  each query and by how much.
+- **SC-008**: With the quick profile (200,000 requests), an evaluator completes load,
+  benchmark and integration tests in under 10 minutes.
+- **SC-009**: An evaluator can read the official results in the repository without running
+  any command.
 
 ## Assumptions
 
-- La fuente es el dataset público NYC 311 Service Requests, accesible con una credencial
-  gratuita que el usuario crea y configura en su entorno.
-- El corte de datos por defecto son las solicitudes más recientes dentro de un rango de
-  fechas de creación cerrado, suficientes para alcanzar el volumen objetivo.
-- El benchmark se ejecuta en una sola máquina, sin concurrencia de usuarios; la concurrencia
-  queda fuera de alcance.
-- Los tiempos se miden de extremo a extremo desde el cliente, incluyendo la recuperación
-  completa del resultado.
-- Los nombres y la disponibilidad exactos de los campos de la fuente se confirman contra la
-  API durante la fase de plan.
-- La licencia de uso de los datos se verifica en la fase de plan y se cita en el README.
-- El motor analítico concreto, los índices y el formato de los archivos de resultados son
-  decisiones del plan, no de este spec.
-- Fuera de alcance: interfaz web, despliegue en la nube, actualización incremental en tiempo
-  real y análisis geoespacial con coordenadas.
+- The source is the public NYC 311 Service Requests dataset, accessible with a free
+  credential that the user creates and configures in their environment.
+- The default data cut is a closed range of creation dates large enough to reach the target
+  volume.
+- The benchmark runs on a single machine, with no concurrent users; concurrency is out of
+  scope.
+- Timings are measured end to end from the client, including full retrieval of the result.
+- The exact names and availability of the source fields are confirmed against the API during
+  the planning phase.
+- The data usage license is verified during the planning phase and cited in the README.
+- The specific analytical engine, the indexes and the format of the result files are
+  decisions of the plan, not of this spec.
+- Out of scope: web interface, cloud deployment, real-time incremental updates, and
+  geospatial analysis with coordinates.

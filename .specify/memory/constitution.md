@@ -1,123 +1,127 @@
 <!--
 Sync Impact Report
-- Version change: (plantilla sin ratificar) → 1.0.0
-- Principios modificados: ninguno (ratificación inicial)
-- Secciones añadidas: Core Principles (I–VII), Restricciones técnicas y entregables,
-  Flujo de trabajo y puertas de calidad, Governance
-- Secciones eliminadas: ninguna
-- Plantillas:
-  - ✅ .specify/templates/plan-template.md — "Constitution Check" es genérico y se deriva
-    de este archivo; sin cambios
-  - ✅ .specify/templates/spec-template.md — sin referencias a principios; sin cambios
-  - ✅ .specify/templates/tasks-template.md — sin referencias a principios; sin cambios
-  - ✅ .specify/templates/commands/ — no existe en spec-kit 0.8.7
-- TODOs diferidos:
-  - Motor OLAP: se define en el plan de la primera feature
-  - Umbral de "diferencia significativa" del benchmark: se define en el spec
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: none redefined; all seven translated from Spanish to English
+  without change of meaning
+- Added sections: "Language" rule under Technical Constraints and Deliverables
+- Removed sections: none
+- Templates:
+  - ✅ .specify/templates/plan-template.md — "Constitution Check" is generic and derived
+    from this file; no change needed
+  - ✅ .specify/templates/spec-template.md — no references to principles; no change needed
+  - ✅ .specify/templates/tasks-template.md — no references to principles; no change needed
+  - ✅ .specify/templates/commands/ — does not exist in spec-kit 0.8.7
+- Deferred TODOs:
+  - OLAP engine: defined in the plan of the first feature, pending human approval
 -->
 
 # OLTP vs OLAP Benchmark Constitution
 
 ## Core Principles
 
-### I. Spec-Driven Development (NO NEGOCIABLE)
+### I. Spec-Driven Development (NON-NEGOTIABLE)
 
-Todo cambio de código sigue el flujo constitution → specify → plan → tasks → implement →
-analyze. Ninguna tarea se implementa sin un spec aprobado por el humano y un plan generado.
-Cada fase termina en una parada: el humano autoriza la siguiente.
+Every code change follows the flow constitution → specify → plan → tasks → implement →
+analyze. No task is implemented without a spec approved by the human and a generated plan.
+Each phase ends with a stop: the human authorizes the next one.
 
-**Razón**: el reto evalúa el proceso tanto como el resultado; el spec es el contrato contra
-el que se verifica la implementación.
+**Rationale**: the challenge evaluates the process as much as the result; the spec is the
+contract the implementation is verified against.
 
-### II. Integridad del benchmark (NO NEGOCIABLE)
+### II. Benchmark Integrity (NON-NEGOTIABLE)
 
-Los resultados publicados DEBEN ser mediciones reales y reproducibles con los scripts del
-repositorio. Está prohibido ajustar datos, consultas, índices o configuración con el único
-fin de inflar la diferencia entre modelos. Si la diferencia OLTP vs OLAP no alcanza el umbral
-de significancia definido en el spec, el trabajo se DETIENE y se reporta al humano.
+Published results MUST be real measurements, reproducible with the scripts in the
+repository. Adjusting data, queries, indexes or configuration for the sole purpose of
+inflating the difference between models is forbidden. If the OLTP vs OLAP difference does
+not reach the significance threshold defined in the spec, work STOPS and is reported to the
+human.
 
-**Razón**: un benchmark manipulado invalida el entregable completo.
+**Rationale**: a manipulated benchmark invalidates the whole deliverable.
 
-### III. Comparación justa
+### III. Fair Comparison
 
-Ambos modelos DEBEN cargarse con el mismo conjunto de datos y responder las mismas consultas
-lógicas, con resultados equivalentes verificados por tests. La metodología de medición DEBE
-quedar documentada: calentamiento, número de repeticiones, estadístico reportado (mediana y
-percentiles), volumen de datos, hardware y versiones. Cada modelo usa los índices y el diseño
-idiomáticos de su paradigma; no se degrada deliberadamente ninguno.
+Both models MUST be loaded with the same dataset and answer the same logical queries, with
+equivalent results verified by tests. The measurement methodology MUST be documented:
+warm-up, number of repetitions, reported statistic (median and percentiles), data volume,
+hardware and versions. Each model uses the indexes and design idiomatic to its paradigm;
+neither is deliberately degraded.
 
-**Razón**: la diferencia medida solo es defendible si lo único que cambia es el modelo.
+**Rationale**: the measured difference is only defensible if the model is the only thing
+that changes.
 
-### IV. Calidad verificable
+### IV. Verifiable Quality
 
-Los tests se escriben con pytest; los de integración viven en `tests/integration/` y corren
-contra bases de datos reales, no mocks. `ruff check` y `ruff format --check` DEBEN pasar
-antes de cada commit. Una tarea no está terminada hasta que sus tests pasan.
+Tests are written with pytest; integration tests live in `tests/integration/` and run
+against real databases, not mocks. `ruff check` and `ruff format --check` MUST pass before
+every commit. A task is not done until its tests pass.
 
-**Razón**: las afirmaciones de corrección y de equivalencia entre modelos deben poder
-comprobarse ejecutando un comando.
+**Rationale**: claims of correctness and of equivalence between models must be checkable by
+running a command.
 
-### V. Simplicidad y alcance acotado
+### V. Simplicity and Bounded Scope
 
-No se instala ninguna dependencia sin aprobación humana. No se modifican archivos fuera del
-scope de la tarea en curso. Se prefiere la solución más simple que cumpla el spec; toda
-complejidad adicional DEBE justificarse en el plan.
+No dependency is installed without human approval. No file outside the scope of the current
+task is modified. The simplest solution that satisfies the spec is preferred; any additional
+complexity MUST be justified in the plan.
 
-**Razón**: el reto tiene tiempo acotado y `DESIGN.md` un máximo de dos páginas; lo que no
-aporta a la medición es ruido.
+**Rationale**: the challenge is time-boxed and `DESIGN.md` is limited to two pages; whatever
+does not contribute to the measurement is noise.
 
-### VI. Trazabilidad
+### VI. Traceability
 
-Los commits son semánticos y atómicos (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`,
-`chore:`). Los archivos se agregan explícitamente; `git add .` y `git add -A` están
-prohibidos. El agente nunca ejecuta `git push`: el humano publica. Las correcciones hechas
-al trabajo generado por AI se registran para `AI_WORKFLOW.md`.
+Commits are semantic and atomic (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
+Files are added explicitly; `git add .` and `git add -A` are forbidden. The agent never runs
+`git push`: the human publishes. Corrections made to AI-generated work are recorded for
+`AI_WORKFLOW.md`.
 
-**Razón**: el historial es parte de la evidencia que se evalúa.
+**Rationale**: the history is part of the evidence being evaluated.
 
-### VII. Ingesta responsable
+### VII. Responsible Ingestion
 
-La ingesta DEBE respetar los límites de la API de origen. Las credenciales (app token) se
-leen de variables de entorno y nunca se commitean. La carga DEBE ser idempotente y
-reanudable: reejecutarla no duplica filas y una interrupción no obliga a empezar de cero.
+Ingestion MUST respect the limits of the source API. Credentials (app token) are read from
+environment variables and never committed. The load MUST be idempotent and resumable:
+re-running it does not duplicate rows and an interruption does not force a restart from
+zero.
 
-**Razón**: una fuente pública es un recurso compartido, y una ingesta de millones de filas
-que no se puede reanudar pone en riesgo el plazo.
+**Rationale**: a public source is a shared resource, and a multi-million-row ingestion that
+cannot resume puts the deadline at risk.
 
-## Restricciones técnicas y entregables
+## Technical Constraints and Deliverables
 
-- **Lenguaje**: Python 3.12 o superior.
-- **OLTP**: PostgreSQL 17 vía `docker compose`, puerto local 5433.
-- **OLAP**: motor por definir en el plan de la primera feature, con justificación.
-- **Fuente de datos**: NYC 311 Service Requests (Socrata, dataset `erm2-nwe9`).
-- **Tooling**: pytest para tests, ruff para lint y formato.
-- **Entregables en la raíz del repo**: `README.md`, `DESIGN.md` (máximo 2 páginas),
-  `AI_WORKFLOW.md`, script de benchmark con resultados en `results/` y tests de integración
-  en `tests/integration/`.
+- **Language**: everything written into the repository MUST be in English: code, comments,
+  commit messages, documentation, spec-kit artifacts and agent configuration files.
+- **Runtime**: Python 3.12 or later.
+- **OLTP**: PostgreSQL 17 via `docker compose`, local port 5433.
+- **OLAP**: engine defined in the plan of the first feature, with justification.
+- **Data source**: NYC 311 Service Requests (Socrata, dataset `erm2-nwe9`).
+- **Tooling**: pytest for tests, ruff for lint and format.
+- **Deliverables at the repo root**: `README.md`, `DESIGN.md` (maximum 2 pages),
+  `AI_WORKFLOW.md`, benchmark script with results in `results/`, and integration tests in
+  `tests/integration/`.
 
-## Flujo de trabajo y puertas de calidad
+## Workflow and Quality Gates
 
-- **Modos del agente**: Investigación (subagente, solo lectura y web; entrega informe, nunca
-  decisiones), Configuración (entorno y harness; todo se commitea) e Implementación (solo con
-  spec aprobado y fase autorizada).
-- **Regla de los dos intentos**: si un error no se resuelve en 2 intentos, el agente se
-  detiene y reporta.
-- **Cierre de fase**: actualizar "Estado actual" en `CLAUDE.md`, ejecutar `graphify update .`
-  si cambió código y `/speckit-analyze` si se implementó algo.
-- **Puerta de plan**: el "Constitution Check" de cada plan DEBE evaluar los principios I–VII
-  y registrar cualquier desviación en "Complexity Tracking".
+- **Agent modes**: Research (subagent, read-only and web; delivers a report, never
+  decisions), Configuration (environment and harness; everything is committed) and
+  Implementation (only with an approved spec and an authorized phase).
+- **Two-attempt rule**: if an error is not solved in 2 attempts, the agent stops and
+  reports.
+- **Phase close**: update "Current status" in `CLAUDE.md`, run `graphify update .` if code
+  changed and `/speckit-analyze` if something was implemented.
+- **Plan gate**: the "Constitution Check" of every plan MUST evaluate principles I–VII and
+  record any deviation under "Complexity Tracking".
 
 ## Governance
 
-Esta constitución prevalece sobre cualquier otra práctica del proyecto. `CLAUDE.md` es la
-guía operativa de ejecución y DEBE mantenerse coherente con ella.
+This constitution supersedes any other practice in the project. `CLAUDE.md` is the runtime
+operating guide and MUST stay consistent with it.
 
-- **Enmiendas**: las propone el agente o el humano, las aprueba el humano y se registran en
-  el Sync Impact Report al inicio de este archivo.
-- **Versionado**: semántico. MAJOR para eliminar o redefinir principios, MINOR para añadir
-  principios o secciones, PATCH para aclaraciones de redacción.
-- **Cumplimiento**: cada plan verifica los principios antes de la investigación y tras el
-  diseño; `/speckit-analyze` revisa la coherencia entre spec, plan y tareas tras cada
-  implementación.
+- **Amendments**: proposed by the agent or the human, approved by the human, and recorded in
+  the Sync Impact Report at the top of this file.
+- **Versioning**: semantic. MAJOR for removing or redefining principles, MINOR for adding
+  principles or sections, PATCH for wording clarifications.
+- **Compliance**: every plan checks the principles before research and after design;
+  `/speckit-analyze` reviews consistency between spec, plan and tasks after each
+  implementation.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-12 | **Last Amended**: 2026-10-12
+**Version**: 1.1.0 | **Ratified**: 2026-10-12 | **Last Amended**: 2026-10-12

@@ -24,8 +24,8 @@ def main() -> int:
                 "hookSpecificOutput": {
                     "hookEventName": "PostToolUse",
                     "additionalContext": (
-                        "Tests ejecutados. Si pasaron, verifica la implementación "
-                        "contra el spec con /speckit-analyze antes de commitear."
+                        "Tests ran. If they passed, verify the implementation "
+                        "against the spec with /speckit-analyze before committing."
                     ),
                 }
             },

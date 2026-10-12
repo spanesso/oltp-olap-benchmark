@@ -1,4 +1,4 @@
-# Specification Quality Checklist: Benchmark OLTP vs OLAP sobre NYC 311
+# Specification Quality Checklist: OLTP vs OLAP Benchmark on NYC 311
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-12
@@ -31,13 +31,15 @@
 
 ## Notes
 
-- La fuente de datos (NYC 311) y el directorio `results/` se nombran porque son requisitos
-  del reto, no decisiones de implementación.
-- Aprobado por el humano el 2026-10-12: volumen por defecto (FR-002), repeticiones mínimas
-  (FR-015), umbral de significancia (SC-003), tolerancia de repetibilidad (SC-006) y la
-  historia opcional de operaciones transaccionales (User Story 4 / FR-020), que se
-  implementa solo si queda tiempo.
-- Aprobado por el humano el 2026-10-12: perfil rápido para evaluadores (FR-002, FR-024 a
-  FR-026, SC-008, SC-009) y tiempo máximo de preparación de 1 hora para el perfil completo
-  (SC-002). Los tiempos de SC-002 y SC-008 son objetivos sin medir; si no se cumplen al
-  medir, se reporta en vez de relajar el criterio.
+- The data source (NYC 311) and the `results/` directory are named because they are
+  requirements of the challenge, not implementation decisions.
+- Approved by the human on 2026-10-12: default volume (FR-002), minimum repetitions
+  (FR-015), significance threshold (SC-003), repeatability tolerance (SC-006), and the
+  optional transactional operations story (User Story 4 / FR-020), implemented only if time
+  remains.
+- Approved by the human on 2026-10-12: quick profile for evaluators (FR-002, FR-024 to
+  FR-026, SC-008, SC-009) and a 1-hour maximum preparation time for the full profile
+  (SC-002). The times in SC-002 and SC-008 are unmeasured targets; if they are not met when
+  measured, that is reported instead of relaxing the criterion.
+- The spec was first drafted in Spanish and translated to English on 2026-10-12 at the
+  human's request, with no change to requirements.
