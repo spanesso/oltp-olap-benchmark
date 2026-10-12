@@ -43,8 +43,13 @@ resultados en `results/`, tests de integración en `tests/integration/`.
 ## Estado actual
 - **Fase -1 (bootstrap): completada.** spec-kit 0.8.7 inicializado, skill de Graphify
   instalado a nivel proyecto, harness configurado, Postgres definido en `docker-compose.yml`.
-- **Siguiente: Fase 0** — investigación de APIs públicas con subagente. El humano elige la API.
-- Pendiente del humano: arrancar Docker Desktop antes de la Fase 2.
+- **Fase 0 (investigación de APIs): completada.** Dos rondas con subagente, 15 fuentes
+  evaluadas. El humano eligió **NYC 311 Service Requests** (Socrata, dataset `erm2-nwe9`,
+  `https://data.cityofnewyork.us/resource/erm2-nwe9.json`): 22,7 M de filas medidas
+  (2020-01-01 a 2026-10-10), páginas de hasta 50.000 filas, sin throttling con app token.
+- Pendiente de verificar en Fase 1: licencia de NYC Open Data y versión del endpoint SODA.
+- **Siguiente: Fase 1** — constitution y spec; definir el motor OLAP.
+- Pendiente del humano: crear un app token de Socrata y arrancar Docker Desktop antes de la Fase 2.
 
 ## Bitácora para AI_WORKFLOW.md
 Correcciones reales hechas al plan generado por AI, para documentarlas al final:
