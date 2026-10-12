@@ -50,9 +50,11 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
   chose **NYC 311 Service Requests** (Socrata, dataset `erm2-nwe9`,
   `https://data.cityofnewyork.us/resource/erm2-nwe9.json`): 22.7 M rows measured
   (2020-01-01 to 2026-10-10), pages of up to 50,000 rows, no throttling with an app token.
-- **Phase 1 (constitution, spec, plan): in progress.** Constitution v1.0.0 ratified, spec
-  `specs/001-nyc311-oltp-olap-benchmark/spec.md` approved, plan approved (DuckDB as OLAP
-  engine) on branch `001-nyc311-oltp-olap-benchmark`. Tasks being generated.
+- **Phase 1 (constitution, spec, plan, tasks): done.** Constitution v1.1.0, spec and plan
+  approved (DuckDB as OLAP engine), 57 tasks in
+  `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
+- **Next: Phase 2** — implementation, starting with tasks T001 to T014 (setup and
+  foundational). Requires human authorization.
 - Pending from the human: create a Socrata app token and start Docker Desktop before
   Phase 2.
 
