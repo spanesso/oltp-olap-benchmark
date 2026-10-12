@@ -1,6 +1,85 @@
 {
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit(/src/**)",
+      "Edit(/tests/**)",
+      "Edit(/docs/**)",
+      "Edit(/results/**)",
+      "Edit(/specs/**)",
+      "Edit(/.specify/**)",
+      "Edit(/CLAUDE.md)",
+      "Edit(/DESIGN.md)",
+      "Edit(/AI_WORKFLOW.md)",
+      "Edit(/README.md)",
+      "Edit(/Makefile)",
+      "Edit(/requirements.txt)",
+      "Edit(/.gitignore)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(pytest *)",
+      "Bash(make *)",
+      "Bash(ruff *)",
+      "Bash(psql *)",
+      "Bash(graphify *)",
+      "Bash(specify *)",
+      "Bash(.specify/scripts/bash/*)",
+      "Bash(docker compose *)",
+      "Bash(git add src/*)",
+      "Bash(git add tests/*)",
+      "Bash(git add docs/*)",
+      "Bash(git add results/*)",
+      "Bash(git add specs/*)",
+      "Bash(git add .specify/*)",
+      "Bash(git add .claude/*)",
+      "Bash(git add graphify-out/*)",
+      "Bash(git add CLAUDE.md)",
+      "Bash(git add DESIGN.md)",
+      "Bash(git add AI_WORKFLOW.md)",
+      "Bash(git add README.md)",
+      "Bash(git add Makefile)",
+      "Bash(git add requirements.txt)",
+      "Bash(git add .gitignore)",
+      "Bash(git add docker-compose.yml)",
+      "Bash(git commit *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(git push*)",
+      "Bash(git add .)",
+      "Bash(git add -A*)",
+      "Bash(git add --all*)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout -- *)",
+      "Bash(pip install *)",
+      "Bash(pip3 install *)",
+      "Bash(python -m pip *)",
+      "Bash(python3 -m pip *)",
+      "Bash(uv add *)",
+      "Bash(uv pip install *)",
+      "Edit(/.env*)",
+      "Edit(**/*.lock)",
+      "Edit(/.claude/settings.json)",
+      "Edit(/.claude/hooks/**)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard_bash.py"
+          }
+        ]
+      },
       {
         "matcher": "Bash|Grep",
         "hooks": [
@@ -16,6 +95,17 @@
           {
             "type": "command",
             "command": "graphify hook-guard read"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/after_pytest.py"
           }
         ]
       }
