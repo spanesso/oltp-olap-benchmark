@@ -29,9 +29,9 @@ tested on its own.
 
 **Purpose**: project skeleton and tooling.
 
-- [ ] T001 Create `pyproject.toml` with package `nyc311_bench` under `src/`, Python `>=3.12`, runtime dependencies `psycopg[binary]>=3.2` and `duckdb>=1.4`, dev dependencies `pytest` and `ruff`, and the ruff and pytest configuration (pytest markers `integration` and `loaded`)
-- [ ] T002 Create the package skeleton: `src/nyc311_bench/__init__.py`, empty `tests/unit/__init__.py`, `tests/integration/__init__.py`, and directories `sql/staging/`, `sql/oltp/`, `sql/olap/`, `results/` (with `.gitkeep`)
-- [ ] T003 [P] Create `Makefile` with targets `up`, `install`, `bench` (with `PROFILE`, default `quick`), `test`, `lint`, as specified in contracts/cli.md
+- [x] T001 Create `pyproject.toml` with package `nyc311_bench` under `src/`, Python `>=3.12`, runtime dependencies `psycopg[binary]>=3.2` and `duckdb>=1.4`, dev dependencies `pytest` and `ruff`, and the ruff and pytest configuration (pytest markers `integration` and `loaded`)
+- [x] T002 Create the package skeleton: `src/nyc311_bench/__init__.py`, empty `tests/unit/__init__.py`, `tests/integration/__init__.py`, and directories `sql/staging/`, `sql/oltp/`, `sql/olap/`, `results/` (with `.gitkeep`)
+- [x] T003 [P] Create `Makefile` with targets `up`, `install`, `bench` (with `PROFILE`, default `quick`), `test`, `lint`, as specified in contracts/cli.md
 - [ ] T004 [P] Create `.env.example` documenting `SOCRATA_APP_TOKEN`, the `POSTGRES_*` variables and `OLAP_PATH`, as specified in contracts/cli.md
 - [ ] T005 Install the project into `.venv` with `make install` and confirm `python -c "import duckdb, psycopg"` works (the two dependencies were approved by the human on 2026-10-12)
 
@@ -43,9 +43,9 @@ tested on its own.
 
 **⚠️ CRITICAL**: no user story work starts until this phase is complete.
 
-- [ ] T006 Implement `src/nyc311_bench/config.py`: settings from environment variables with the defaults in contracts/cli.md, the profiles (`quick` = 200,000 rows, `full` = 5,000,000 rows), the data cut `[2024-01-01, 2026-01-01)`, and a redacting representation that never prints the token; unit tests in `tests/unit/test_config.py`
-- [ ] T007 Implement `src/nyc311_bench/db.py`: a PostgreSQL connection factory (psycopg) and a DuckDB connection factory, plus a helper that executes a `.sql` file from `sql/`; unit test for the SQL file loader in `tests/unit/test_db.py`
-- [ ] T008 **VERIFY** (research R8) Read the NYC Open Data terms of use at `https://www.nyc.gov/html/data/terms.html` through a read-only research subagent, record the relevant text and attribution requirement in `specs/001-nyc311-oltp-olap-benchmark/research.md`, and state whether committing a small sample of real rows is allowed
+- [x] T006 Implement `src/nyc311_bench/config.py`: settings from environment variables with the defaults in contracts/cli.md, the profiles (`quick` = 200,000 rows, `full` = 5,000,000 rows), the data cut `[2024-01-01, 2026-01-01)`, and a redacting representation that never prints the token; unit tests in `tests/unit/test_config.py`
+- [x] T007 Implement `src/nyc311_bench/db.py`: a PostgreSQL connection factory (psycopg) and a DuckDB connection factory, plus a helper that executes a `.sql` file from `sql/`; unit test for the SQL file loader in `tests/unit/test_db.py`
+- [x] T008 **VERIFY** (research R8) Read the NYC Open Data terms of use at `https://www.nyc.gov/html/data/terms.html` through a read-only research subagent, record the relevant text and attribution requirement in `specs/001-nyc311-oltp-olap-benchmark/research.md`, and state whether committing a small sample of real rows is allowed
 - [ ] T009 **VERIFY** (research R3) With a real app token, request one page of 1,000 rows using `$select` of the 12 fields, `$order=created_date,unique_key` and the compound keyset predicate; confirm the predicate is accepted, that two consecutive pages do not overlap, and that every `unique_key` in the page is numeric; record the result in `specs/001-nyc311-oltp-olap-benchmark/research.md`
 - [ ] T010 Create `tests/fixtures/sample_311.json` with about 2,000 source rows (real rows from T009's cut if T008 allows it, otherwise synthetic rows with the same shape) including the edge cases: no `closed_date`, `closed_date` before `created_date`, missing `borough`, missing `incident_zip`, missing channel, and at least one row with a missing `unique_key`; document its origin in `tests/fixtures/README.md`
 - [ ] T011 [P] Write `sql/staging/schema.sql`: schema `staging` with `service_request_raw`, `ingest_checkpoint` and `rejected_row`, as specified in data-model.md section 1

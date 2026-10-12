@@ -165,8 +165,8 @@ Nothing else is run concurrently.
 
 ## R7. Integration test data
 
-**Decision**: integration tests load a small fixture of real rows committed under
-`tests/fixtures/` into a dedicated PostgreSQL database and a temporary DuckDB file. They need
+**Decision**: integration tests load a small synthetic fixture committed under
+`tests/fixtures/` (synthetic because of R8) into a dedicated PostgreSQL database and a temporary DuckDB file. They need
 Docker but neither the network nor an app token. The same checks can also be pointed at the
 currently loaded profile.
 
@@ -176,13 +176,26 @@ no `closed_date`, `closed_date` before `created_date`, and missing dimension val
 
 ## R8. License and attribution
 
-**Status: not resolved.** The dataset metadata declares no license, and its attribution is
-"311" [V]. The official terms page for NYC Open Data
-(`https://www.nyc.gov/html/data/terms.html`) was found but its text was not read [U].
+**Status: not verified (task T008, 2026-10-12).** A second research pass could not read the
+official terms:
 
-**Action**: a task reads that page before the README is written; the README then cites the
-source, the attribution and the terms. Committing a small fixture of real rows (R7) depends
-on those terms; if they do not allow it, the fixture is generated synthetically instead.
+- `https://www.nyc.gov/html/data/terms.html` returned HTTP 404 on two attempts [V]. Its
+  content is known only through a search-engine summary, which is not a reliable quote [U].
+- The dataset landing page exposed no license, attribution or privacy text to the fetch
+  tool, and the dataset metadata declares no license; its attribution is "311" [V].
+- `https://www.nyc.gov/home/terms-of-use.page` is the generic NYC.gov site text; it has no
+  open-data section [V].
+- The search summary says the NYC Open Data Law (Local Law 11 of 2012) makes public data sets
+  available without license requirement or restrictions on use, that the City may require
+  the source to be identified, and that the City disclaims any warranty of accuracy [U].
+
+**Decision**: because permission to redistribute rows is not verified, the repository
+commits **no real rows**. The test fixture (R7) is synthetic, with the same shape as the
+source. Real data is only ever downloaded by the user running the benchmark.
+
+**Remaining action for the human**: open the terms page in a browser and confirm the
+attribution wording before the README is published. The README will name the source and the
+dataset id, state that the data is provided by the City as is, and link to the portal.
 
 ## Sources verified
 
@@ -199,7 +212,7 @@ on those terms; if they do not allow it, the fixture is generated synthetically 
 
 | Item | Blocks | Resolved by |
 |---|---|---|
-| NYC Open Data terms of use | README, committed fixture | first documentation task |
+| NYC Open Data terms of use (page returned 404) | README wording | human, in a browser |
 | Compound keyset predicate in SoQL | ingestion | first ingestion task |
 | Uniqueness and numeric form of `unique_key` | OLTP primary key type | first ingestion task |
 | Whether `agency_name` is determined by `agency` | agency table key | first modeling task |
