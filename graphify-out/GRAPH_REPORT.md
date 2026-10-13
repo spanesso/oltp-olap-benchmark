@@ -1,21 +1,21 @@
 # Graph Report - oltp-olap-benchmark  (2026-10-12)
 
 ## Corpus Check
-- 101 files · ~130,218 words
+- 122 files · ~135,703 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 714 nodes · 965 edges · 64 communities (49 shown, 10 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 58 edges (avg confidence: 0.89)
+- 814 nodes · 1202 edges · 71 communities (56 shown, 10 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `11414e4a`
+- Built from commit: `7bb16925`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- run_sql_file
+- test_run.py
 - Research: OLTP vs OLAP Benchmark on NYC 311
 - common.sh
 - cli.py
@@ -74,43 +74,50 @@
 - test_socrata.py
 - ingest
 - ingest.py
+- runner.py
+- conftest.py
+- Implementation Plan: OLTP vs OLAP Benchmark on NYC 311
+- data-model.md
+- Benchmark results: quick profile
+- Specification Quality Checklist: OLTP vs OLAP Benchmark on NYC 311
+- Data Model: OLTP vs OLAP Benchmark on NYC 311
 
 ## God Nodes (most connected - your core abstractions)
-1. `ingest()` - 23 edges
-2. `Settings` - 19 edges
-3. `FixtureSource` - 19 edges
-4. `Tasks: OLTP vs OLAP Benchmark on NYC 311` - 15 edges
-5. `run_sql_file()` - 14 edges
-6. `Cursor` - 14 edges
-7. `FakeTransport` - 14 edges
-8. `parse_row()` - 13 edges
-9. `build_olap()` - 13 edges
-10. `Tasks: [FEATURE NAME]` - 13 edges
+1. `ingest()` - 24 edges
+2. `Settings` - 21 edges
+3. `FixtureSource` - 21 edges
+4. `command_run()` - 15 edges
+5. `Tasks: OLTP vs OLAP Benchmark on NYC 311` - 15 edges
+6. `run_sql_file()` - 14 edges
+7. `build_olap()` - 14 edges
+8. `Cursor` - 14 edges
+9. `FakeTransport` - 14 edges
+10. `command_load()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `FixtureSource` --uses--> `SocrataUnavailable`  [INFERRED]
-  tests/integration/sources.py → src/nyc311_bench/socrata.py
-- `test_an_interrupted_load_resumes_from_the_checkpoint()` --uses--> `SocrataUnavailable`  [INFERRED]
-  tests/integration/test_ingest.py → src/nyc311_bench/socrata.py
-- `FixtureSource` --uses--> `Cursor`  [INFERRED]
-  tests/integration/sources.py → src/nyc311_bench/socrata.py
 - `test_page_size_must_be_positive()` --uses--> `SocrataClient`  [INFERRED]
   tests/unit/test_socrata.py → src/nyc311_bench/socrata.py
-- `test_invalid_port_is_rejected()` --uses--> `ConfigError`  [INFERRED]
-  tests/unit/test_config.py → src/nyc311_bench/config.py
+- `test_client_errors_are_not_retried()` --uses--> `SocrataError`  [INFERRED]
+  tests/unit/test_socrata.py → src/nyc311_bench/socrata.py
+- `test_the_token_never_appears_in_error_messages()` --uses--> `SocrataError`  [INFERRED]
+  tests/unit/test_socrata.py → src/nyc311_bench/socrata.py
+- `test_client_errors_are_not_retried()` --uses--> `SocrataUnavailable`  [INFERRED]
+  tests/unit/test_socrata.py → src/nyc311_bench/socrata.py
+- `test_gives_up_after_the_configured_retries()` --uses--> `SocrataUnavailable`  [INFERRED]
+  tests/unit/test_socrata.py → src/nyc311_bench/socrata.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (64 total, 10 thin omitted)
+## Communities (71 total, 10 thin omitted)
 
-### Community 0 - "run_sql_file"
+### Community 0 - "test_run.py"
 Cohesion: 0.05
-Nodes (49): Connection, DuckDBPyConnection, connect_duckdb(), connect_postgres(), Any, Path, Connections to both engines and access to the SQL files under `sql/`., Return the text of a SQL file, addressed relative to the `sql/` directory. (+41 more)
+Nodes (46): Connection, DuckDBPyConnection, connect_duckdb(), connect_postgres(), Any, Path, Connections to both engines and access to the SQL files under `sql/`., Return the text of a SQL file, addressed relative to the `sql/` directory. (+38 more)
 
 ### Community 1 - "Research: OLTP vs OLAP Benchmark on NYC 311"
-Cohesion: 0.05
-Nodes (36): Content Quality, Feature Readiness, Notes, Requirement Completeness, Specification Quality Checklist: OLTP vs OLAP Benchmark on NYC 311, `benchmark_<profile>.json`, `benchmark_<profile>.md`, Contract: Results Files (+28 more)
+Cohesion: 0.15
+Nodes (13): Open items, R10. First measurements on the quick profile (2026-10-12), R1. Source dataset, R2. Data cut and volume profiles, R3. API access and pagination, R4. OLAP engine, R5. Python dependencies, R6. Measurement method (+5 more)
 
 ### Community 2 - "common.sh"
 Cohesion: 0.14
@@ -118,7 +125,7 @@ Nodes (27): check-prerequisites.sh script, check_dir(), check_feature_branch(), 
 
 ### Community 3 - "cli.py"
 Cohesion: 0.10
-Nodes (33): ArgumentParser, OLTP vs OLAP benchmark on NYC 311 Service Requests. Usage: python benchmark.py…, Namespace, build_parser(), command_build(), command_load(), _connect(), _fail() (+25 more)
+Nodes (36): ArgumentParser, OLTP vs OLAP benchmark on NYC 311 Service Requests. Usage: python benchmark.py…, Namespace, build_parser(), command_all(), command_build(), command_load(), command_run() (+28 more)
 
 ### Community 4 - "Tasks: [FEATURE NAME]"
 Cohesion: 0.07
@@ -285,40 +292,68 @@ Cohesion: 0.50
 Nodes (3): Edge cases included, `sample_311.json`, Test fixtures
 
 ### Community 56 - "test_cli.py"
-Cohesion: 0.18
-Nodes (3): OLTP vs OLAP benchmark on NYC 311 Service Requests., parametrize, test_invalid_arguments_exit_with_code_2()
+Cohesion: 0.15
+Nodes (4): OLTP vs OLAP benchmark on NYC 311 Service Requests., parametrize, test_invalid_arguments_exit_with_code_2(), test_too_few_measurement_runs_exit_with_code_2()
 
 ### Community 61 - "test_socrata.py"
-Cohesion: 0.09
-Nodes (34): _last_cursor(), Keyset position after a page: its last row that carries both key fields., _read_checkpoint(), Cursor, Exception, Paginated client for the NYC 311 dataset on the Socrata (SODA 2.x) API. Pages…, Return the rows that follow `cursor`, at most `limit` (default: the page size)., The API rejected the request; retrying would not help. (+26 more)
+Cohesion: 0.19
+Nodes (21): Exception, A failed HTTP exchange. `status` is None when no response was received., TransportError, urllib_transport(), FakeTransport, make_client(), parametrize, query_of() (+13 more)
 
 ### Community 62 - "ingest"
-Cohesion: 0.12
-Nodes (23): FetchPage, Reporter, ingest(), Stage rows of the cut until `target_rows` are present, resuming from the…, FixtureSource, Stand-in for the API in integration tests: serves the fixture with keyset…, Serves rows in file order. A cursor resumes after the row it points to., Staging load: idempotent, resumable, and explicit about rejected rows. (+15 more)
+Cohesion: 0.06
+Nodes (43): FetchPage, ingest(), _last_cursor(), Reporter, Keyset position after a page: its last row that carries both key fields., Stage rows of the cut until `target_rows` are present, resuming from the…, _read_checkpoint(), build_oltp() (+35 more)
 
 ### Community 63 - "ingest.py"
 Cohesion: 0.15
 Nodes (22): format_summary(), IngestSummary, parse_row(), Any, datetime, Load API pages into the staging area, idempotently and resumably. Each page is…, Insert one page and advance the checkpoint atomically. Returns the rows added., Turn one API row into a staging tuple, or say why it cannot be loaded. The API… (+14 more)
 
+### Community 64 - "runner.py"
+Cohesion: 0.07
+Nodes (55): Query, build_report(), Any, datetime, Path, Turn measurements into the two result files and the significance verdict., SC-003, evaluated only on the official (full) profile., render_markdown() (+47 more)
+
+### Community 65 - "conftest.py"
+Cohesion: 0.19
+Nodes (12): olap(), olap_path(), pg(), postgres_test_database(), fixture, Path, Integration test harness: real PostgreSQL and DuckDB, isolated from loaded…, Create an empty `bench_test` database and return its connection string. (+4 more)
+
+### Community 66 - "Implementation Plan: OLTP vs OLAP Benchmark on NYC 311"
+Cohesion: 0.20
+Nodes (10): Complexity Tracking, Constitution Check, Documentation (this feature), Implementation Approach, Implementation Plan: OLTP vs OLAP Benchmark on NYC 311, Project Structure, Risks, Source Code (repository root) (+2 more)
+
+### Community 67 - "data-model.md"
+Cohesion: 0.32
+Nodes (3): `benchmark_<profile>.json`, `benchmark_<profile>.md`, Contract: Results Files
+
+### Community 68 - "Benchmark results: quick profile"
+Cohesion: 0.33
+Nodes (5): Analytical queries, Benchmark results: quick profile, Environment, Method, Verdict
+
+### Community 69 - "Specification Quality Checklist: OLTP vs OLAP Benchmark on NYC 311"
+Cohesion: 0.33
+Nodes (5): Content Quality, Feature Readiness, Notes, Requirement Completeness, Specification Quality Checklist: OLTP vs OLAP Benchmark on NYC 311
+
+### Community 70 - "Data Model: OLTP vs OLAP Benchmark on NYC 311"
+Cohesion: 0.33
+Nodes (6): 1. Staging (PostgreSQL, schema `staging`), 2. OLTP model (PostgreSQL, schema `oltp`, third normal form), 3. OLAP model (DuckDB file, star schema), 4. Parity invariants (checked by integration tests, FR-021), 5. Benchmark results (files in `results/`), Data Model: OLTP vs OLAP Benchmark on NYC 311
+
 ## Knowledge Gaps
-- **296 isolated node(s):** `git-common.sh script`, `common.sh script`, `nyc311-bench`, `graphify`, `Usage` (+291 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 418 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **301 isolated node(s):** `git-common.sh script`, `common.sh script`, `nyc311-bench`, `graphify`, `Usage` (+296 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 451 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ingest()` connect `ingest` to `run_sql_file`, `cli.py`, `test_socrata.py`, `ingest.py`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `run_sql_file()` connect `run_sql_file` to `cli.py`?**
+- **Why does `ingest()` connect `ingest` to `cli.py`, `ingest.py`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
+- **Why does `FixtureSource` connect `ingest` to `test_run.py`?**
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
+- **Why does `Settings` connect `cli.py` to `test_run.py`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
-- **Why does `Settings` connect `cli.py` to `run_sql_file`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **Are the 13 inferred relationships involving `Settings` (e.g. with `command_build()` and `command_load()`) actually correct?**
-  _`Settings` has 13 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 3 inferred relationships involving `FixtureSource` (e.g. with `Cursor` and `SocrataUnavailable`) actually correct?**
-  _`FixtureSource` has 3 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 15 inferred relationships involving `Settings` (e.g. with `command_all()` and `command_build()`) actually correct?**
+  _`Settings` has 15 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 4 inferred relationships involving `FixtureSource` (e.g. with `Cursor` and `SocrataUnavailable`) actually correct?**
+  _`FixtureSource` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 4 inferred relationships involving `command_run()` (e.g. with `cli.py` and `command_all()`) actually correct?**
+  _`command_run()` has 4 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `git-common.sh script`, `common.sh script`, `nyc311-bench` to the rest of the system?**
-  _296 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `run_sql_file` be split into smaller, more focused modules?**
-  _Cohesion score 0.05191256830601093 - nodes in this community are weakly interconnected._
+  _301 weakly-connected nodes found - possible documentation gaps or missing edges._
