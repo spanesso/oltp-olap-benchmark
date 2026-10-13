@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "profile": "full",
+  "official": true,
+  "generated_at": "2026-10-13T01:17:45Z",
+  "dataset": {
+    "source": "NYC 311 Service Requests (erm2-nwe9)",
+    "cut_start": "2024-01-01T00:00:00",
+    "cut_end": "2026-01-01T00:00:00",
+    "rows": 5000000,
+    "first_created_at": "2024-01-01T00:00:00",
+    "last_created_at": "2025-06-10T09:03:00"
+  },
+  "environment": {
+    "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "cores": 10,
+    "memory_gb": 16.0,
+    "python": "3.13.9",
+    "postgresql": "17.11 (Debian 17.11-1.pgdg13+2)",
+    "postgresql_runtime": "docker container, reached over local TCP",
+    "postgresql_settings": {
+      "max_parallel_workers_per_gather": "2",
+      "max_parallel_workers": "8",
+      "shared_buffers": "128MB",
+      "work_mem": "4MB",
+      "jit": "on"
+    },
+    "duckdb": "1.5.6",
+    "duckdb_runtime": "embedded in the benchmark process",
+    "duckdb_settings": {
+      "threads": "10",
+      "memory_limit": "12.7 GiB"
+    }
+  },
+  "method": {
+    "warmup_runs": 1,
+    "measured_runs": 10,
+    "timer": "perf_counter, execute + full fetch"
+  },
+  "queries": [
+    {
+      "id": "q1_volume_by_type_month_borough",
+      "group": "analytical",
+      "question": "How many requests of each complaint type were created per month in each borough?",
+      "result_rows": 13367,
+      "oltp": {
+        "runs_ms": [
+          2373.996,
+          2373.503,
+          2375.533,
+          2393.192,
+          2357.216,
+          2368.19,
+          2353.751,
+          2386.453,
+          2360.457,
+          2376.688
+        ],
+        "median_ms": 2373.75,
+        "p95_ms": 2390.159,
+        "min_ms": 2353.751,
+        "max_ms": 2393.192
+      },
+      "olap": {
+        "runs_ms": [
+          31.338,
+          28.052,
+          28.085,
+          28.232,
+          28.087,
+          28.488,
+          27.859,
+          27.917,
+          27.624,
+          27.723
+        ],
+        "median_ms": 28.069,
+        "p95_ms": 30.055,
+        "min_ms": 27.624,
+        "max_ms": 31.338
+      },
+      "speedup": 84.57
+    },
+    {
+      "id": "q2_top_types_per_zip",
+      "group": "analytical",
+      "question": "For each ZIP code, which are the 10 most frequent complaint types and how long do they take to resolve on average?",
+      "result_rows": 2521,
+      "oltp": {
+        "runs_ms": [
+          1262.71,
+          1260.463,
+          1260.461,
+          1257.928,
+          1257.428,
+          1257.677,
+          1259.878,
+          1263.992,
+          1269.427,
+          1258.229
+        ],
+        "median_ms": 1260.169,
+        "p95_ms": 1266.981,
+        "min_ms": 1257.428,
+        "max_ms": 1269.427
+      },
+      "olap": {
+        "runs_ms": [
+          26.006,
+          24.537,
+          22.86,
+          23.249,
+          22.707,
+          22.737,
+          22.741,
+          22.686,
+          24.616,
+          22.579
+        ],
+        "median_ms": 22.801,
+        "p95_ms": 25.381,
+        "min_ms": 22.579,
+        "max_ms": 26.006
+      },
+      "speedup": 55.27
+    },
+    {
+      "id": "q3_closure_rate_agency_channel",
+      "group": "analytical",
+      "question": "What share of requests does each agency close within 30 days, by channel?",
+      "result_rows": 50,
+      "oltp": {
+        "runs_ms": [
+          692.128,
+          696.388,
+          692.466,
+          695.091,
+          693.979,
+          692.649,
+          691.573,
+          691.475,
+          691.145,
+          690.89
+        ],
+        "median_ms": 692.297,
+        "p95_ms": 695.804,
+        "min_ms": 690.89,
+        "max_ms": 696.388
+      },
+      "olap": {
+        "runs_ms": [
+          16.102,
+          14.277,
+          13.122,
+          12.18,
+          11.501,
+          11.363,
+          11.386,
+          11.372,
+          11.259,
+          11.615
+        ],
+        "median_ms": 11.558,
+        "p95_ms": 15.281,
+        "min_ms": 11.259,
+        "max_ms": 16.102
+      },
+      "speedup": 59.9
+    },
+    {
+      "id": "q4_resolution_p90_agency_quarter",
+      "group": "analytical",
+      "question": "What is the 90th percentile of resolution time per agency and quarter?",
+      "result_rows": 84,
+      "oltp": {
+        "runs_ms": [
+          4420.274,
+          4424.358,
+          4450.862,
+          4416.151,
+          4413.947,
+          4422.583,
+          4418.069,
+          4392.688,
+          4417.829,
+          4437.379
+        ],
+        "median_ms": 4419.171,
+        "p95_ms": 4444.794,
+        "min_ms": 4392.688,
+        "max_ms": 4450.862
+      },
+      "olap": {
+        "runs_ms": [
+          37.692,
+          32.657,
+          33.273,
+          30.813,
+          31.672,
+          32.226,
+          31.2,
+          31.716,
+          32.195,
+          32.248
+        ],
+        "median_ms": 32.21,
+        "p95_ms": 35.703,
+        "min_ms": 30.813,
+        "max_ms": 37.692
+      },
+      "speedup": 137.2
+    },
+    {
+      "id": "q5_noise_by_weekday_hour",
+      "group": "analytical",
+      "question": "In Brooklyn, when do noise complaints concentrate, by day of week and hour?",
+      "result_rows": 168,
+      "oltp": {
+        "runs_ms": [
+          1030.93,
+          1028.933,
+          1014.547,
+          1013.863,
+          1016.954,
+          1014.552,
+          1020.079,
+          1021.499,
+          1015.95,
+          1022.689
+        ],
+        "median_ms": 1018.516,
+        "p95_ms": 1030.032,
+        "min_ms": 1013.863,
+        "max_ms": 1030.93
+      },
+      "olap": {
+        "runs_ms": [
+          8.732,
+          7.356,
+          6.633,
+          6.186,
+          5.698,
+          5.322,
+          5.312,
+          5.167,
+          5.391,
+          4.508
+        ],
+        "median_ms": 5.544,
+        "p95_ms": 8.113,
+        "min_ms": 4.508,
+        "max_ms": 8.732
+      },
+      "speedup": 183.71
+    },
+    {
+      "id": "q6_channel_share_by_quarter",
+      "group": "analytical",
+      "question": "How is each quarter's volume split across channels?",
+      "result_rows": 30,
+      "oltp": {
+        "runs_ms": [
+          1989.179,
+          1989.572,
+          1972.099,
+          1993.221,
+          2002.332,
+          1991.842,
+          1985.296,
+          1993.26,
+          1982.583,
+          1984.837
+        ],
+        "median_ms": 1989.376,
+        "p95_ms": 1998.249,
+        "min_ms": 1972.099,
+        "max_ms": 2002.332
+      },
+      "olap": {
+        "runs_ms": [
+          18.564,
+          15.071,
+          13.263,
+          12.368,
+          12.19,
+          12.04,
+          12.17,
+          12.136,
+          12.169,
+          12.181
+        ],
+        "median_ms": 12.185,
+        "p95_ms": 16.992,
+        "min_ms": 12.04,
+        "max_ms": 18.564
+      },
+      "speedup": 163.26
+    }
+  ],
+  "significance": {
+    "evaluated": true,
+    "rule": "OLAP at least 3x faster on the median in at least two thirds of analytical queries",
+    "queries_meeting_3x": 6,
+    "analytical_queries": 6,
+    "reached": true
+  }
+}
