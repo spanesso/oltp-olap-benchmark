@@ -19,10 +19,14 @@ TEST_DATABASE = "bench_test"
 FIXTURE_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "sample_311.json"
 
 
-def pytest_collection_modifyitems(items):
+def pytest_collection_modifyitems(config, items):
+    loaded_requested = "loaded" in (config.getoption("-m") or "")
+    skip_loaded = pytest.mark.skip(reason="runs only with `pytest -m loaded`")
     for item in items:
         if "tests/integration" in item.path.as_posix():
             item.add_marker(pytest.mark.integration)
+        if "loaded" in item.keywords and not loaded_requested:
+            item.add_marker(skip_loaded)
 
 
 @pytest.fixture(scope="session")
@@ -80,3 +84,33 @@ def olap(olap_path):
 def sample_rows() -> list[dict[str, str]]:
     """The synthetic source rows, in the order the API would return them."""
     return json.loads(FIXTURE_PATH.read_text())
+
+
+@pytest.fixture
+def built_models(pg, olap_path, postgres_test_database, sample_rows):
+    """Both models built from the 2,000 valid fixture rows: (postgres connection, olap path)."""
+    from nyc311_bench.ingest import ingest
+    from nyc311_bench.olap import build_olap
+    from nyc311_bench.oltp import build_oltp
+    from tests.integration.sources import FixtureSource
+
+    ingest(pg, FixtureSource(sample_rows), 5000, page_size=700, report=lambda _message: None)
+    build_oltp(pg, 2000)
+    build_olap(olap_path, pg, postgres_test_database)
+    return pg, olap_path
+
+
+@pytest.fixture(scope="session")
+def loaded_models(settings):
+    """The models built by `benchmark.py build`, whatever profile is currently loaded."""
+    psycopg = pytest.importorskip("psycopg")
+    if not settings.olap_path.is_file():
+        pytest.skip(f"{settings.olap_path} does not exist: run `benchmark.py build` first")
+    try:
+        connection = psycopg.connect(settings.postgres_conninfo(), autocommit=True)
+    except psycopg.OperationalError as error:
+        pytest.skip(f"PostgreSQL is not reachable: run `make up` ({error})")
+    duck = connect_duckdb(settings.olap_path, read_only=True)
+    yield connection, duck
+    duck.close()
+    connection.close()
