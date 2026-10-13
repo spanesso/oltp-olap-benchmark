@@ -53,10 +53,15 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
 - **Phase 1 (constitution, spec, plan, tasks): done.** Constitution v1.1.0, spec and plan
   approved (DuckDB as OLAP engine), 57 tasks in
   `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
-- **Next: Phase 2** — implementation, starting with tasks T001 to T014 (setup and
-  foundational). Requires human authorization.
-- Pending from the human: create a Socrata app token and start Docker Desktop before
-  Phase 2.
+- **Phase 2 (implementation): in progress.** Setup and foundational tasks written:
+  T001–T003, T006–T008, T010–T013 done. T014 (integration harness) is written but has not
+  run yet because the dependencies are not installed.
+- Blocked on the human: T004 (`.env.example`, the agent may not edit `.env*`), T005
+  (`make install`, the agent may not run pip), T009 (needs `SOCRATA_APP_TOKEN` in `.env`).
+- The test fixture is synthetic: the NYC Open Data terms page returned 404, so no real rows
+  are committed.
+- Pending from the human: read the NYC Open Data terms in a browser before the README is
+  published.
 
 ## Log for AI_WORKFLOW.md
 Real corrections made to AI-generated work, to be documented at the end:
