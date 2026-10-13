@@ -84,6 +84,33 @@ NYC 311 API ──▶ staging (PostgreSQL) ──▶ OLTP model (PostgreSQL, 3NF
 5. **Report**: the runner writes a JSON file with every run and a Markdown summary with
    medians, 95th percentiles, speedup factors, and the significance verdict.
 
+## Dashboard
+
+A React dashboard reads `results/benchmark_full.json` and renders the speedup chart,
+per-query detail table, execution plans, and environment card.
+
+```bash
+cd dashboard && npm run dev        # http://localhost:5173
+```
+
+### Live re-measurement
+
+An optional API server (standard library only, no extra dependencies) lets you re-run the
+benchmark from the dashboard and refresh the displayed numbers without reloading the page.
+
+```bash
+# Terminal 1
+make api           # starts http://localhost:8788
+
+# Terminal 2
+make dashboard     # starts http://localhost:5173
+```
+
+Click **"▶ Actualizar medición en vivo"** in the dashboard header. The server runs
+`benchmark.py run --profile full`, copies the updated JSON to `dashboard/public/`, and the
+dashboard shows the fresh numbers. On the next cold start the updated numbers load
+automatically from the static file.
+
 ## Project structure
 
 ```
@@ -98,9 +125,10 @@ tests/
   integration/             tests against real PostgreSQL and DuckDB
   fixtures/                synthetic sample data (2,004 rows)
 results/                   benchmark output (JSON and Markdown)
+dashboard/                 React SPA + api_server.py (live re-measurement)
 specs/                     specification, plan, research, data model, tasks
 docker-compose.yml         PostgreSQL 17 on port 5433
-Makefile                   up, install, bench, test, lint
+Makefile                   up, install, bench, test, lint, api, dashboard
 ```
 
 ## Limitations

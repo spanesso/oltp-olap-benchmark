@@ -59,6 +59,15 @@ percentile over the 10 measured runs.
 **Significance rule**: OLAP is at least 3× faster on the median in at least two thirds of
 the analytical queries. The rule is evaluated only on the full profile (5,000,000 requests).
 
+## Dashboard
+
+A React SPA (Clean Architecture) reads `results/benchmark_full.json` and renders the
+speedup chart, per-query table, execution plans, and environment card. An optional
+stdlib-only API server (`dashboard/api_server.py`, port 8788) runs `benchmark.py run`
+as a subprocess, copies the updated JSON to `dashboard/public/`, and returns the fresh
+data to the browser in a single POST — no page reload. The static JSON is the
+authoritative source; the dashboard degrades gracefully when the server is not running.
+
 ## Alternatives considered
 
 **Data source.** Fifteen public APIs were evaluated in two research rounds. Chicago Crimes
