@@ -60,3 +60,28 @@ def test_exit_codes_match_the_contract():
         cli.EXIT_SOURCE_UNAVAILABLE,
         cli.EXIT_PARITY,
     ) == (0, 1, 2, 3, 4)
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["run", "--warmup", "0"],
+        ["run", "--repetitions", "9"],
+        ["run", "--repetitions", "ten"],
+        ["all", "--repetitions", "1"],
+    ],
+)
+def test_too_few_measurement_runs_exit_with_code_2(argv, capsys):
+    with pytest.raises(SystemExit) as raised:
+        cli.main(argv, env={})
+    assert raised.value.code == cli.EXIT_USAGE
+
+
+def test_measurement_defaults_match_the_spec():
+    args = cli.build_parser().parse_args(["run"])
+    assert (args.warmup, args.repetitions, args.profile) == (1, 10, "quick")
+
+
+def test_all_stops_at_the_first_failing_step(capsys):
+    assert cli.main(["all"], env={}) == cli.EXIT_USAGE
+    assert "SOCRATA_APP_TOKEN" in capsys.readouterr().err

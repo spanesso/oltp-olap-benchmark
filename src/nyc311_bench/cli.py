@@ -7,6 +7,7 @@ import os
 import sys
 import time
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 from nyc311_bench.config import (
     DEFAULT_PAGE_SIZE,
@@ -16,12 +17,20 @@ from nyc311_bench.config import (
     get_profile,
     load_dotenv,
 )
+from nyc311_bench.runner import (
+    DEFAULT_MEASURED_RUNS,
+    DEFAULT_WARMUP_RUNS,
+    MIN_MEASURED_RUNS,
+    MIN_WARMUP_RUNS,
+)
 
 EXIT_OK = 0
 EXIT_ERROR = 1
 EXIT_USAGE = 2
 EXIT_SOURCE_UNAVAILABLE = 3
 EXIT_PARITY = 4
+
+RESULTS_DIR = Path("results")
 
 
 def _page_size(value: str) -> int:
@@ -32,6 +41,19 @@ def _page_size(value: str) -> int:
     if not 1 <= size <= DEFAULT_PAGE_SIZE:
         raise argparse.ArgumentTypeError(f"must be between 1 and {DEFAULT_PAGE_SIZE}")
     return size
+
+
+def _at_least(minimum: int):
+    def parse(value: str) -> int:
+        try:
+            number = int(value)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"not an integer: {value!r}") from None
+        if number < minimum:
+            raise argparse.ArgumentTypeError(f"must be at least {minimum}")
+        return number
+
+    return parse
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -60,6 +82,29 @@ def build_parser() -> argparse.ArgumentParser:
 
     build = commands.add_parser("build", help="rebuild the OLTP and OLAP models from staging")
     add_profile(build)
+
+    def add_measurement(command: argparse.ArgumentParser) -> None:
+        command.add_argument(
+            "--warmup",
+            type=_at_least(MIN_WARMUP_RUNS),
+            default=DEFAULT_WARMUP_RUNS,
+            help=f"discarded runs per query and model (default: {DEFAULT_WARMUP_RUNS})",
+        )
+        command.add_argument(
+            "--repetitions",
+            type=_at_least(MIN_MEASURED_RUNS),
+            default=DEFAULT_MEASURED_RUNS,
+            help=f"measured runs per query and model (default: {DEFAULT_MEASURED_RUNS})",
+        )
+
+    run = commands.add_parser("run", help="measure every query on both models")
+    add_profile(run)
+    add_measurement(run)
+
+    everything = commands.add_parser("all", help="load, build and run")
+    add_profile(everything)
+    add_measurement(everything)
+    everything.add_argument("--page-size", type=_page_size, default=DEFAULT_PAGE_SIZE)
     return parser
 
 
@@ -160,7 +205,80 @@ def command_build(args: argparse.Namespace, settings: Settings) -> int:
     return EXIT_OK
 
 
-COMMANDS = {"load": command_load, "build": command_build}
+def command_run(args: argparse.Namespace, settings: Settings) -> int:
+    from nyc311_bench.db import connect_duckdb
+    from nyc311_bench.queries import QUERIES
+    from nyc311_bench.report import build_report, write_report
+    from nyc311_bench.runner import (
+        ParityError,
+        check_parity,
+        dataset_info,
+        environment_info,
+        run_queries,
+    )
+
+    profile = get_profile(args.profile)
+    if not settings.olap_path.is_file():
+        return _fail(
+            f"the OLAP model file {settings.olap_path} does not exist. "
+            f"Run `build --profile {profile.name}` first.",
+            EXIT_PARITY,
+        )
+
+    with _connect(settings) as connection:
+        duck = connect_duckdb(settings.olap_path, read_only=True)
+        try:
+            rows = check_parity(connection, duck, expected_rows=profile.target_rows)
+            print(
+                f"Measuring {len(QUERIES)} queries on {rows:,} requests "
+                f"({args.warmup} warm-up, {args.repetitions} measured runs each)."
+            )
+            results = run_queries(
+                connection, duck, QUERIES, warmup=args.warmup, repetitions=args.repetitions
+            )
+            report = build_report(
+                profile,
+                results,
+                dataset_info(connection),
+                environment_info(connection, duck),
+                args.warmup,
+                args.repetitions,
+            )
+        except ParityError as error:
+            return _fail(f"{error}. Nothing was measured.", EXIT_PARITY)
+        finally:
+            duck.close()
+
+    json_path, markdown_path = write_report(report, RESULTS_DIR)
+    verdict = report["significance"]
+    print(f"Results written to {json_path} and {markdown_path}.")
+    print(
+        f"{verdict['queries_meeting_3x']} of {verdict['analytical_queries']} analytical queries "
+        "are at least 3x faster on the OLAP model."
+    )
+    if not verdict["evaluated"]:
+        print("Quick profile: these are not the official timings.")
+    elif verdict["reached"]:
+        print("Significance threshold reached.")
+    else:
+        print("Significance threshold NOT reached. Nothing was changed to reach it.")
+    return EXIT_OK
+
+
+def command_all(args: argparse.Namespace, settings: Settings) -> int:
+    for command in (command_load, command_build, command_run):
+        code = command(args, settings)
+        if code != EXIT_OK:
+            return code
+    return EXIT_OK
+
+
+COMMANDS = {
+    "load": command_load,
+    "build": command_build,
+    "run": command_run,
+    "all": command_all,
+}
 
 
 def main(argv: Sequence[str] | None = None, env: Mapping[str, str] | None = None) -> int:

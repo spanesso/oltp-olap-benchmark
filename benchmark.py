@@ -4,6 +4,8 @@
 Usage:
     python benchmark.py load  --profile {quick|full}
     python benchmark.py build --profile {quick|full}
+    python benchmark.py run   --profile {quick|full}
+    python benchmark.py all   --profile {quick|full}
 
 Run `python benchmark.py --help` for every command and option.
 """
