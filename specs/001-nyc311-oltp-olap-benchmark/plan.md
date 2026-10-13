@@ -84,6 +84,7 @@ docker-compose.yml           # exists: PostgreSQL 17
 src/nyc311_bench/
 ├── cli.py                   # argument parsing, command dispatch, exit codes
 ├── config.py                # environment variables, profiles, data cut
+├── db.py                    # connections to both engines, SQL file loader
 ├── socrata.py               # paginated client: keyset, retries, backoff
 ├── ingest.py                # API pages -> staging, checkpoint, rejected rows
 ├── oltp.py                  # staging -> normalized model
@@ -94,9 +95,12 @@ src/nyc311_bench/
 
 sql/
 ├── staging/schema.sql
-├── oltp/schema.sql
+├── oltp/schema.sql          # tables; indexes.sql is applied after load.sql
+├── oltp/load.sql
+├── oltp/indexes.sql
 ├── oltp/q1_….sql … q6_….sql
 ├── olap/schema.sql
+├── olap/load.sql
 └── olap/q1_….sql … q6_….sql
 
 tests/

@@ -94,3 +94,9 @@ def test_load_dotenv_ignores_a_missing_file(tmp_path):
     env: dict[str, str] = {}
     load_dotenv(tmp_path / "absent.env", env)
     assert env == {}
+
+
+def test_profiles_differ_only_in_volume_and_official_flag():
+    quick, full = get_profile("quick"), get_profile("full")
+    assert set(vars(quick)) == {"name", "target_rows", "official"}
+    assert quick.target_rows < full.target_rows

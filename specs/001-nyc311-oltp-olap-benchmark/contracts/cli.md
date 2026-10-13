@@ -43,17 +43,18 @@ Progress and summaries go to standard output; errors go to standard error.
 |---|---|
 | 0 | Success. For `run`, this includes the case where the significance threshold is not reached: the report states it (FR-019). |
 | 1 | Unexpected error. |
-| 2 | Invalid arguments or configuration, including a missing `SOCRATA_APP_TOKEN` for `load` (reported before any request is sent). |
+| 2 | Invalid arguments or configuration, including a missing `SOCRATA_APP_TOKEN` for `load` (reported before any request is sent), a target the data cut cannot provide, and `build` when staging holds fewer rows than the profile needs. |
 | 3 | The source API kept failing after the retries were exhausted. Progress is kept; rerun to resume. |
-| 4 | Parity check failed: a model is empty or the row counts differ. Nothing is measured (FR-018). |
+| 4 | Parity check failed: a model is empty, the row counts differ, or they do not match the profile. Nothing is measured (FR-018). |
+| 130 | Interrupted with Ctrl-C. Progress is kept; rerun to resume. |
 
 ## Retry policy for `load` (FR-006)
 
 - HTTP 429 and 5xx, timeouts and connection errors: retry up to 5 times with exponential
   backoff starting at 2 seconds, honoring `Retry-After` when present.
 - Other 4xx: no retry; stop with the response status and body excerpt (token redacted).
-- An empty page before the target is reached ends the load with a warning stating how many
-  rows the cut actually holds.
+- An empty or short page before the target is reached ends the load with a warning stating
+  how many rows the cut actually holds, and exit code 2.
 
 ## Makefile targets
 

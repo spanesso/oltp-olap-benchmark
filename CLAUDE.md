@@ -81,6 +81,12 @@ Real corrections made to AI-generated work, to be documented at the end:
 - The agent wrote a "load in under 3 hours" success criterion that read as the expected
   duration. The human questioned it; it was replaced by a 1-hour limit for the full profile
   plus a quick profile (200,000 rows, under 10 minutes) so evaluators need not wait.
+- The task list required one commit per task and tests written and seen failing before the
+  code. The agent instead committed each module together with its tests, sometimes covering
+  several task ids. `/speckit-analyze` flagged it; the rule in tasks.md was rewritten to
+  match what is actually verifiable (green suite at every commit).
+- A load that ran out of data before reaching its target exited with code 0. The analysis
+  flagged the undefined case; it now exits with code 2 and the contract documents it.
 - The agent drafted the constitution, spec and CLAUDE.md in Spanish. The human required
   English for the whole repo; all artifacts were translated.
 

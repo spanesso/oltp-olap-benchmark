@@ -105,6 +105,12 @@ def command_load(args: argparse.Namespace, settings: Settings) -> int:
         except SocrataError as error:
             return _fail(str(error), EXIT_ERROR)
     print(format_summary(summary))
+    if not summary.complete:
+        return _fail(
+            f"the data cut cannot provide {profile.target_rows:,} requests; "
+            f"only {summary.rows_staged:,} are available.",
+            EXIT_USAGE,
+        )
     return EXIT_OK
 
 

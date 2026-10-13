@@ -16,7 +16,9 @@ tested on its own.
 
 ## Rules for every task
 
-- One atomic semantic commit per task, files added explicitly, no push.
+- Atomic semantic commits, files added explicitly, no push. A commit may cover several task
+  ids when they form one unit that is only testable together (for example a module and its
+  tests); the message lists the ids.
 - `ruff check` and `ruff format --check` must pass before the commit (enforced by the hook).
 - Everything written is in English.
 - If an error is not solved in 2 attempts, stop and report.
@@ -195,7 +197,8 @@ adds a separate transactional section to the report.
 
 ### Within Each User Story
 
-- Tests are written first and must fail before the implementation that makes them pass.
+- Every module is committed together with the tests that cover it, and the suite is green
+  at every commit.
 - Schemas before builders, builders before the CLI, the CLI before real runs.
 
 ### Parallel Opportunities
