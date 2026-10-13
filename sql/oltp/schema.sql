@@ -1,5 +1,6 @@
 -- OLTP model: third normal form. Every descriptive value is stored once and referenced by
 -- key; no derived column is stored. The schema is rebuilt from staging on every build.
+-- Secondary indexes live in indexes.sql and are created after the bulk load.
 
 DROP SCHEMA IF EXISTS oltp CASCADE;
 CREATE SCHEMA oltp;
@@ -56,13 +57,3 @@ CREATE TABLE oltp.service_request (
     channel_id    integer NOT NULL REFERENCES oltp.channel (channel_id),
     status_id     integer NOT NULL REFERENCES oltp.status (status_id)
 );
-
--- Indexes a transactional workload would have: one per foreign key, plus creation time.
-CREATE INDEX service_request_agency_idx     ON oltp.service_request (agency_id);
-CREATE INDEX service_request_descriptor_idx ON oltp.service_request (descriptor_id);
-CREATE INDEX service_request_location_idx   ON oltp.service_request (location_id);
-CREATE INDEX service_request_channel_idx    ON oltp.service_request (channel_id);
-CREATE INDEX service_request_status_idx     ON oltp.service_request (status_id);
-CREATE INDEX service_request_created_at_idx ON oltp.service_request (created_at);
-CREATE INDEX complaint_descriptor_type_idx  ON oltp.complaint_descriptor (complaint_type_id);
-CREATE INDEX location_borough_idx           ON oltp.location (borough_id);
