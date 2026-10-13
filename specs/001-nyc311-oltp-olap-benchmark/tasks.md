@@ -140,10 +140,10 @@ it fail and name the query.
 **Purpose**: produce the official numbers. This phase contains a hard gate.
 
 - [x] T044 Run `make bench PROFILE=quick` and `make test` from a clean state, time the whole sequence, and compare it with SC-008 (under 10 minutes); if it is not met, stop and report instead of relaxing the criterion
-- [ ] T045 Run `python benchmark.py load --profile full` and `build --profile full`, time them, and compare with SC-002 (under 1 hour); if it is not met, stop and report
-- [ ] T046 Run `python benchmark.py run --profile full` twice and check SC-006 (medians within 20% per query and model); if it is not met, identify the interference, rerun, and report what was found
-- [ ] T047 **GATE (constitution principle II)** Read the significance verdict in `results/benchmark_full.json`. If SC-003 is not reached, **STOP and report to the human**: do not change data, queries, indexes or configuration. If it is reached, commit `results/benchmark_full.json`, `results/benchmark_full.md`, `results/benchmark_quick.json` and `results/benchmark_quick.md`
-- [ ] T048 Run `pytest -m loaded` against the full profile and confirm SC-004 (every query equivalent on both models)
+- [x] T045 Run `python benchmark.py load --profile full` and `build --profile full`, time them, and compare with SC-002 (under 1 hour); if it is not met, stop and report
+- [x] T046 Run `python benchmark.py run --profile full` twice and check SC-006 (medians within 20% per query and model); if it is not met, identify the interference, rerun, and report what was found
+- [x] T047 **GATE (constitution principle II)** Read the significance verdict in `results/benchmark_full.json`. If SC-003 is not reached, **STOP and report to the human**: do not change data, queries, indexes or configuration. If it is reached, commit `results/benchmark_full.json`, `results/benchmark_full.md`, `results/benchmark_quick.json` and `results/benchmark_quick.md`
+- [x] T048 Run `pytest -m loaded` against the full profile and confirm SC-004 (every query equivalent on both models)
 
 ---
 

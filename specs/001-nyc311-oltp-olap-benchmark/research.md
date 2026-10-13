@@ -282,6 +282,56 @@ and no DuckDB file: 55 seconds for load, build and measurement, plus 12 seconds 
 tests. Total 67 seconds against the 10-minute limit of SC-008. The `pytest -m loaded` checks
 (13 tests: parity and equivalence of every query on the real loaded data) also pass.
 
+## R12. Official measurement on the full profile (tasks T045–T048, 2026-10-12)
+
+**Data preparation (SC-002: under 1 hour)** — met.
+
+| Step | Duration |
+|---|---|
+| Download of 4,800,000 rows (96 pages; the first 200,000 were already staged) | 1,406 s |
+| Download of the first 200,000 rows, measured earlier | 43 to 57 s |
+| Build OLTP model | 135 s |
+| Build OLAP model | 3 s |
+
+About 27 minutes in total. The download was not timed in a single run from an empty database:
+it resumed from the quick profile, so the total is the sum of two measured parts.
+
+**Data loaded**: 5,000,000 requests created 2024-01-01 to 2025-06-10; 0 rows rejected; 83,788
+without a closing date and 1,506 closed before they were created. 15 agencies, 203 complaint
+types, 1,194 descriptors, 990 locations. Every agency code has a single name across the 5 M
+rows. The OLTP request table with its indexes takes 771 MB; the DuckDB file takes 126 MB.
+
+**Benchmark (SC-003: OLAP at least 3x faster in two thirds of the queries)** — reached, 6 of 6.
+
+| Query | OLTP median (ms) | OLAP median (ms) | Speedup |
+|---|---:|---:|---:|
+| q1 | 2,373.8 | 28.1 | 84.6x |
+| q2 | 1,260.2 | 22.8 | 55.3x |
+| q3 | 692.3 | 11.6 | 59.9x |
+| q4 | 4,419.2 | 32.2 | 137.2x |
+| q5 | 1,018.5 | 5.5 | 183.7x |
+| q6 | 1,989.4 | 12.2 | 163.3x |
+
+**Repeatability (SC-006: medians within 20% between two runs)** — met. Across two consecutive
+runs the largest change was 10.0% (q5 on OLAP, 6.2 ms to 5.5 ms); every OLTP median moved by
+less than 1%.
+
+**Equivalence (SC-004)** — met. `pytest -m loaded` on the full profile: 13 passed (identical
+request sets, matching totals for six dimensions, and all six queries equivalent row by row).
+
+**Caveats to state wherever these numbers are shown**:
+
+- PostgreSQL ran with the defaults of the official image (`shared_buffers` 128 MB,
+  `work_mem` 4 MB, 2 parallel workers per gather) inside the Docker Desktop virtual machine;
+  DuckDB ran natively with 10 threads. No engine was tuned in either direction. A tuned
+  PostgreSQL would narrow the gap; by how much was not measured.
+- q5 grew from 9 ms on 200,000 rows to 1,018 ms on 5,000,000 on the OLTP side, far more than
+  the growth in data. The cause was not investigated; a change of query plan under the small
+  default `work_mem` is the likely explanation, but that is a hypothesis.
+- The difference combines the schema (normalized vs star, with precomputed measures) and the
+  storage engine (row vs columnar). This benchmark does not separate the two.
+- One machine, one run of each configuration, no concurrent users.
+
 ## Sources verified
 
 - `https://data.cityofnewyork.us/resource/erm2-nwe9.json` (sample rows, counts, aggregates)
