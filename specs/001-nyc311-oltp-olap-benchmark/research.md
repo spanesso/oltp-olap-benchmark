@@ -249,6 +249,32 @@ staging, the second for the DuckDB fallback path.
   about 2 minutes to build both models, inside the 1-hour limit of SC-002. This is an
   estimate until the full profile is actually run.
 
+## R10. First measurements on the quick profile (2026-10-12)
+
+Not official: 200,000 requests, three weeks of data, one machine. Recorded to steer the
+remaining work, not as results.
+
+| Query | OLTP median (ms) | OLAP median (ms) | Speedup |
+|---|---:|---:|---:|
+| q1 | 86.6 | 6.4 | 13.5x |
+| q2 | 125.2 | 8.6 | 14.5x |
+| q3 | 32.4 | 3.5 | 9.2x |
+| q4 | 199.2 | 6.2 | 32.1x |
+| q5 | 9.3 | 1.6 | 5.7x |
+| q6 | 142.5 | 3.2 | 44.7x |
+
+- All six query pairs returned identical rows and value types on the real data (ad hoc
+  comparison; the automated equivalence tests are User Story 3).
+- Repeatability between two consecutive runs: every OLTP median moved by 2% or less. OLAP
+  medians moved by up to 33% (q3: 3.5 ms to 4.7 ms). At a few milliseconds, scheduler noise
+  is a large fraction of the measurement, so SC-006 (within 20%) may fail for the fastest
+  OLAP queries. To be re-checked on the full profile, where the times are larger; if it
+  still fails it is reported, not tuned away.
+- PostgreSQL runs inside the Docker Desktop virtual machine with the image defaults
+  (`shared_buffers` 128 MB, `work_mem` 4 MB, 2 parallel workers per gather), while DuckDB
+  runs natively with 10 threads. Both are defaults and both are written into the results
+  file, but this asymmetry is a limitation to state in DESIGN.md.
+
 ## Sources verified
 
 - `https://data.cityofnewyork.us/resource/erm2-nwe9.json` (sample rows, counts, aggregates)

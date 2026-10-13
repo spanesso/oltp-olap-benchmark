@@ -98,22 +98,22 @@ equal row counts for both models; running them again changes nothing.
 
 ### Tests for User Story 2
 
-- [ ] T027 [P] [US2] Unit tests for the statistics in `tests/unit/test_runner_stats.py`: median, p95, min, max and speedup on known inputs, and rejection of fewer than 1 warm-up run or fewer than 10 repetitions
-- [ ] T028 [P] [US2] Unit tests for the report in `tests/unit/test_report.py`: JSON matches contracts/results-schema.md; the significance verdict is computed correctly at the 3x and two-thirds boundaries; the quick profile is marked not official with `significance.evaluated` false; the Markdown states the verdict whether reached or not
-- [ ] T029 [P] [US2] Integration test in `tests/integration/test_run.py`: `run` on the fixture produces both result files, and refuses with exit code 4 when one row is deleted from the fact table or a model is empty
+- [x] T027 [P] [US2] Unit tests for the statistics in `tests/unit/test_runner_stats.py`: median, p95, min, max and speedup on known inputs, and rejection of fewer than 1 warm-up run or fewer than 10 repetitions
+- [x] T028 [P] [US2] Unit tests for the report in `tests/unit/test_report.py`: JSON matches contracts/results-schema.md; the significance verdict is computed correctly at the 3x and two-thirds boundaries; the quick profile is marked not official with `significance.evaluated` false; the Markdown states the verdict whether reached or not
+- [x] T029 [P] [US2] Integration test in `tests/integration/test_run.py`: `run` on the fixture produces both result files, and refuses with exit code 4 when one row is deleted from the fact table or a model is empty
 
 ### Implementation for User Story 2
 
-- [ ] T030 [P] [US2] Write `sql/oltp/q1_volume_by_type_month_borough.sql` and `sql/olap/q1_volume_by_type_month_borough.sql` per contracts/queries.md, each with the business question as a header comment and a total `ORDER BY`
-- [ ] T031 [P] [US2] Write `sql/oltp/q2_top_types_per_zip.sql` and `sql/olap/q2_top_types_per_zip.sql` per contracts/queries.md
-- [ ] T032 [P] [US2] Write `sql/oltp/q3_closure_rate_agency_channel.sql` and `sql/olap/q3_closure_rate_agency_channel.sql` per contracts/queries.md
-- [ ] T033 [P] [US2] Write `sql/oltp/q4_resolution_p90_agency_quarter.sql` and `sql/olap/q4_resolution_p90_agency_quarter.sql` per contracts/queries.md, using the same continuous percentile definition on both engines
-- [ ] T034 [P] [US2] Write `sql/oltp/q5_noise_by_weekday_hour.sql` and `sql/olap/q5_noise_by_weekday_hour.sql` per contracts/queries.md, with the same day-of-week numbering on both engines
-- [ ] T035 [P] [US2] Write `sql/oltp/q6_channel_share_by_quarter.sql` and `sql/olap/q6_channel_share_by_quarter.sql` per contracts/queries.md
-- [ ] T036 [US2] Implement `src/nyc311_bench/queries.py`: the registry of queries with id, business question, group and the pair of SQL files
-- [ ] T037 [US2] Implement `src/nyc311_bench/runner.py`: the parity guard on row counts, warm-up and measured runs timed with `perf_counter` around execute plus full fetch, per-model statistics, and collection of the environment and engine settings listed in contracts/results-schema.md (makes T027 pass)
-- [ ] T038 [US2] Implement `src/nyc311_bench/report.py`: write `results/benchmark_<profile>.json` and `.md` per contracts/results-schema.md, including the significance verdict and the quick-profile warning (makes T028 pass)
-- [ ] T039 [US2] Add the `run` and `all` commands to `src/nyc311_bench/cli.py` with `--warmup`, `--repetitions` and exit code 4 (makes T029 pass)
+- [x] T030 [P] [US2] Write `sql/oltp/q1_volume_by_type_month_borough.sql` and `sql/olap/q1_volume_by_type_month_borough.sql` per contracts/queries.md, each with the business question as a header comment and a total `ORDER BY`
+- [x] T031 [P] [US2] Write `sql/oltp/q2_top_types_per_zip.sql` and `sql/olap/q2_top_types_per_zip.sql` per contracts/queries.md
+- [x] T032 [P] [US2] Write `sql/oltp/q3_closure_rate_agency_channel.sql` and `sql/olap/q3_closure_rate_agency_channel.sql` per contracts/queries.md
+- [x] T033 [P] [US2] Write `sql/oltp/q4_resolution_p90_agency_quarter.sql` and `sql/olap/q4_resolution_p90_agency_quarter.sql` per contracts/queries.md, using the same continuous percentile definition on both engines
+- [x] T034 [P] [US2] Write `sql/oltp/q5_noise_by_weekday_hour.sql` and `sql/olap/q5_noise_by_weekday_hour.sql` per contracts/queries.md, with the same day-of-week numbering on both engines
+- [x] T035 [P] [US2] Write `sql/oltp/q6_channel_share_by_quarter.sql` and `sql/olap/q6_channel_share_by_quarter.sql` per contracts/queries.md
+- [x] T036 [US2] Implement `src/nyc311_bench/queries.py`: the registry of queries with id, business question, group and the pair of SQL files
+- [x] T037 [US2] Implement `src/nyc311_bench/runner.py`: the parity guard on row counts, warm-up and measured runs timed with `perf_counter` around execute plus full fetch, per-model statistics, and collection of the environment and engine settings listed in contracts/results-schema.md (makes T027 pass)
+- [x] T038 [US2] Implement `src/nyc311_bench/report.py`: write `results/benchmark_<profile>.json` and `.md` per contracts/results-schema.md, including the significance verdict and the quick-profile warning (makes T028 pass)
+- [x] T039 [US2] Add the `run` and `all` commands to `src/nyc311_bench/cli.py` with `--warmup`, `--repetitions` and exit code 4 (makes T029 pass)
 
 **Checkpoint**: the benchmark runs end to end on the quick profile.
 

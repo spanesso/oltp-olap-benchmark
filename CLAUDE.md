@@ -53,11 +53,12 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
 - **Phase 1 (constitution, spec, plan, tasks): done.** Constitution v1.1.0, spec and plan
   approved (DuckDB as OLAP engine), 57 tasks in
   `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
-- **Phase 2 (implementation): in progress.** T001–T026 done. User Story 1 works
-  end to end: `python benchmark.py load|build --profile quick` staged 200,000 real requests
-  (57 s) and built both models (5 s) with equal counts; 107 tests pass.
-- **Next**: User Story 2 (T027–T039), the six queries, the runner and the report. Requires
-  human authorization.
+- **Phase 2 (implementation): in progress.** T001–T039 done: User Stories 1 and 2 work end
+  to end. `python benchmark.py all --profile quick` loads, builds and measures; 162 tests
+  pass. First quick-profile numbers (not official): OLAP 5.7x to 44.7x faster on all six
+  queries.
+- **Next**: User Story 3 (T040–T043), automated equivalence tests, then the measurement
+  phase with the full profile (T044–T048). Requires human authorization.
 - The test fixture is synthetic: the NYC Open Data terms page returned 404, so no real rows
   are committed.
 - Pending from the human: read the NYC Open Data terms in a browser before the README is
