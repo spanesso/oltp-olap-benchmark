@@ -53,11 +53,13 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
 - **Phase 1 (constitution, spec, plan, tasks): done.** Constitution v1.1.0, spec and plan
   approved (DuckDB as OLAP engine), 57 tasks in
   `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
-- **Phase 2 (implementation): in progress.** Setup and foundational tasks written:
-  T001–T003, T006–T008, T010–T013 done. T014 (integration harness) is written but has not
-  run yet because the dependencies are not installed.
-- Blocked on the human: T004 (`.env.example`, the agent may not edit `.env*`), T005
-  (`make install`, the agent may not run pip), T009 (needs `SOCRATA_APP_TOKEN` in `.env`).
+- **Phase 2 (implementation): in progress.** Setup and foundational tasks T001–T014 are
+  done except T004. Dependencies installed (duckdb 1.5.6, psycopg 3.3.6); 24 tests pass,
+  including the integration harness against real PostgreSQL and DuckDB. Keyset pagination
+  verified against the live API (T009).
+- Blocked on the human: T004 (`.env.example`; the agent may not edit `.env*` files).
+- **Next**: User Story 1 (T015–T026), the load into both models. Requires human
+  authorization.
 - The test fixture is synthetic: the NYC Open Data terms page returned 404, so no real rows
   are committed.
 - Pending from the human: read the NYC Open Data terms in a browser before the README is

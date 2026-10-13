@@ -33,7 +33,7 @@ tested on its own.
 - [x] T002 Create the package skeleton: `src/nyc311_bench/__init__.py`, empty `tests/unit/__init__.py`, `tests/integration/__init__.py`, and directories `sql/staging/`, `sql/oltp/`, `sql/olap/`, `results/` (with `.gitkeep`)
 - [x] T003 [P] Create `Makefile` with targets `up`, `install`, `bench` (with `PROFILE`, default `quick`), `test`, `lint`, as specified in contracts/cli.md
 - [ ] T004 [P] Create `.env.example` documenting `SOCRATA_APP_TOKEN`, the `POSTGRES_*` variables and `OLAP_PATH`, as specified in contracts/cli.md
-- [ ] T005 Install the project into `.venv` with `make install` and confirm `python -c "import duckdb, psycopg"` works (the two dependencies were approved by the human on 2026-10-12)
+- [x] T005 Install the project into `.venv` with `make install` and confirm `python -c "import duckdb, psycopg"` works (the two dependencies were approved by the human on 2026-10-12)
 
 ---
 
@@ -51,7 +51,7 @@ tested on its own.
 - [x] T011 [P] Write `sql/staging/schema.sql`: schema `staging` with `service_request_raw`, `ingest_checkpoint` and `rejected_row`, as specified in data-model.md section 1
 - [x] T012 [P] Write `sql/oltp/schema.sql`: schema `oltp` with the eight tables, keys, foreign keys and indexes specified in data-model.md section 2
 - [x] T013 [P] Write `sql/olap/schema.sql`: the six dimensions and `fact_service_request` specified in data-model.md section 3
-- [ ] T014 Create `tests/integration/conftest.py`: fixtures that create an isolated test database in the docker PostgreSQL and a temporary DuckDB file, apply the three schemas, and skip the `integration` tests with a clear message when PostgreSQL is not reachable
+- [x] T014 Create `tests/integration/conftest.py`: fixtures that create an isolated test database in the docker PostgreSQL and a temporary DuckDB file, apply the three schemas, and skip the `integration` tests with a clear message when PostgreSQL is not reachable
 
 **Checkpoint**: configuration, schemas and test harness ready.
 
