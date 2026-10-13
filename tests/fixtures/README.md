@@ -21,7 +21,7 @@ Rows are sorted by `(created_date, unique_key)`, the order the API is read in.
 | Case | Rows | Expected handling |
 |---|---|---|
 | No `closed_date` (still open) | 120 | loaded; excluded from resolution measures |
-| `closed_date` before `created_date` | 34 | loaded; flagged as invalid resolution |
+| `closed_date` before `created_date` | 33 | loaded; flagged as invalid resolution |
 | Missing `borough` | 31 | mapped to `Unknown` in both models |
 | Missing `incident_zip` | 55 | mapped to `Unknown` in both models |
 | Missing `open_data_channel_type` | 37 | mapped to `Unknown` in both models |
