@@ -86,9 +86,25 @@ header, `$select` limited to the 12 fields above, keyset pagination on
 whether it requires authentication [U]); the bulk CSV export `rows.csv` (not paginated, so
 not resumable, and it bypasses the API the challenge asks for).
 
-**To confirm in the first ingestion task [U]**: that SoQL accepts the compound keyset
-predicate `created_date > X OR (created_date = X AND unique_key > K)`; that `unique_key` is
-unique and always numeric within the cut.
+**Confirmed against the live API (task T009, 2026-10-12)** [V]:
+
+- SoQL accepts the compound keyset predicate
+  `created_date > X OR (created_date = X AND unique_key > K)` combined with the cut range.
+- Two consecutive 1,000-row pages had no overlap and no duplicates, and were globally sorted
+  by `(created_date, unique_key)`; 137 of those 2,000 rows share a `created_date` with
+  another row, so the `unique_key` tie-breaker is necessary.
+- Every `unique_key` in 52,000 rows read was an 8-digit numeric string. With equal length,
+  text order and numeric order coincide.
+- The response contains exactly the 12 selected fields; missing values are omitted keys.
+- Latency: about 8 to 11 seconds for a 1,000-row page and 15.8 seconds for a 50,000-row page
+  (19.7 MB of JSON). Cost is dominated by the query, not the page size, so large pages are
+  the right choice. The full profile (100 pages) is therefore estimated at about 26 minutes
+  of download, and the quick profile (4 pages) at about 1 minute. One sample only.
+- No agency code had more than one `agency_name` in those rows; this is a small sample from
+  the first hours of the cut, so the `(code, name)` key stays until T022 checks more data.
+
+**Still to confirm [U]**: that `unique_key` is unique across the whole cut (enforced anyway
+by the staging primary key).
 
 ## R4. OLAP engine
 
@@ -213,7 +229,6 @@ dataset id, state that the data is provided by the City as is, and link to the p
 | Item | Blocks | Resolved by |
 |---|---|---|
 | NYC Open Data terms of use (page returned 404) | README wording | human, in a browser |
-| Compound keyset predicate in SoQL | ingestion | first ingestion task |
-| Uniqueness and numeric form of `unique_key` | OLTP primary key type | first ingestion task |
+| Uniqueness of `unique_key` across the whole cut | OLTP primary key | T022 |
 | Whether `agency_name` is determined by `agency` | agency table key | first modeling task |
 | `psycopg` `COPY` API details | bulk load | first loading task |
