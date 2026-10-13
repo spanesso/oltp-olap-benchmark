@@ -126,10 +126,10 @@ equal row counts for both models; running them again changes nothing.
 **Independent Test**: `pytest tests/integration` passes; altering one row in one model makes
 it fail and name the query.
 
-- [ ] T040 [US3] Implement the result comparison helper in `tests/integration/equivalence.py`: exact match for text and integers, relative tolerance 1e-9 for floats, and a failure message naming the query, the first differing row and the column
-- [ ] T041 [US3] Integration test in `tests/integration/test_query_equivalence.py`, parametrized over every query in the registry, asserting equivalence on the fixture and that each query returns at least one row
-- [ ] T042 [US3] Integration test in `tests/integration/test_equivalence_detects_drift.py`: after changing one fact row in DuckDB only, the equivalence check fails and reports which query differs
-- [ ] T043 [US3] Add the `loaded` pytest marker path to `tests/integration/conftest.py` so the parity and equivalence tests can also be run against the currently loaded profile with `pytest -m loaded`, and run it on the quick profile
+- [x] T040 [US3] Implement the result comparison helper in `tests/integration/equivalence.py`: exact match for text and integers, relative tolerance 1e-9 for floats, and a failure message naming the query, the first differing row and the column
+- [x] T041 [US3] Integration test in `tests/integration/test_query_equivalence.py`, parametrized over every query in the registry, asserting equivalence on the fixture and that each query returns at least one row
+- [x] T042 [US3] Integration test in `tests/integration/test_equivalence_detects_drift.py`: after changing one fact row in DuckDB only, the equivalence check fails and reports which query differs
+- [x] T043 [US3] Add the `loaded` pytest marker path to `tests/integration/conftest.py` so the parity and equivalence tests can also be run against the currently loaded profile with `pytest -m loaded`, and run it on the quick profile
 
 **Checkpoint**: equivalence is verified on the fixture and on real loaded data.
 
@@ -139,7 +139,7 @@ it fail and name the query.
 
 **Purpose**: produce the official numbers. This phase contains a hard gate.
 
-- [ ] T044 Run `make bench PROFILE=quick` and `make test` from a clean state, time the whole sequence, and compare it with SC-008 (under 10 minutes); if it is not met, stop and report instead of relaxing the criterion
+- [x] T044 Run `make bench PROFILE=quick` and `make test` from a clean state, time the whole sequence, and compare it with SC-008 (under 10 minutes); if it is not met, stop and report instead of relaxing the criterion
 - [ ] T045 Run `python benchmark.py load --profile full` and `build --profile full`, time them, and compare with SC-002 (under 1 hour); if it is not met, stop and report
 - [ ] T046 Run `python benchmark.py run --profile full` twice and check SC-006 (medians within 20% per query and model); if it is not met, identify the interference, rerun, and report what was found
 - [ ] T047 **GATE (constitution principle II)** Read the significance verdict in `results/benchmark_full.json`. If SC-003 is not reached, **STOP and report to the human**: do not change data, queries, indexes or configuration. If it is reached, commit `results/benchmark_full.json`, `results/benchmark_full.md`, `results/benchmark_quick.json` and `results/benchmark_quick.md`

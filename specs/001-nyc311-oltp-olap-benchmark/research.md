@@ -275,6 +275,13 @@ remaining work, not as results.
   runs natively with 10 threads. Both are defaults and both are written into the results
   file, but this asymmetry is a limitation to state in DESIGN.md.
 
+## R11. Quick profile from an empty database (task T044, 2026-10-12)
+
+`make bench PROFILE=quick` followed by `make test`, starting with no staging data, no models
+and no DuckDB file: 55 seconds for load, build and measurement, plus 12 seconds for the 182
+tests. Total 67 seconds against the 10-minute limit of SC-008. The `pytest -m loaded` checks
+(13 tests: parity and equivalence of every query on the real loaded data) also pass.
+
 ## Sources verified
 
 - `https://data.cityofnewyork.us/resource/erm2-nwe9.json` (sample rows, counts, aggregates)
