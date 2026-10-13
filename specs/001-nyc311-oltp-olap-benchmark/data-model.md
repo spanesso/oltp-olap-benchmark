@@ -45,7 +45,7 @@ A page insert and its checkpoint update are committed in the same transaction, s
 interruption can never leave them out of step (FR-005).
 
 **`staging.rejected_row`** — rows that cannot be loaded, with the reason (FR-008): missing or
-non-numeric `unique_key`, missing or unparseable `created_date`.
+non-numeric `unique_key`, missing or unparseable `created_date`, unparseable `closed_date`.
 
 ## 2. OLTP model (PostgreSQL, schema `oltp`, third normal form)
 
@@ -69,7 +69,8 @@ location ◀┘                │
 | `service_request` | `request_id`, `created_at`, `closed_at`, `agency_id`, `descriptor_id`, `location_id`, `channel_id`, `status_id` | PK `request_id` (bigint, from `unique_key`); five FKs, all not null |
 
 **Indexes** (idiomatic for a transactional workload): the primary keys, one B-tree index per
-foreign key on `service_request`, and a B-tree index on `service_request.created_at`.
+foreign key on `service_request`, and a B-tree index on `service_request.created_at`. They are
+created after the bulk load (`sql/oltp/indexes.sql`).
 
 **Rules**:
 
@@ -94,7 +95,7 @@ dim_status ◀───┘
 
 | Table | Grain | Columns |
 |---|---|---|
-| `dim_date` | one row per calendar day in the cut | `date_key` (yyyymmdd), `date`, `year`, `quarter`, `month`, `month_name`, `day`, `day_of_week`, `is_weekend` |
+| `dim_date` | one row per calendar day between the first and last request loaded | `date_key` (yyyymmdd), `date`, `year`, `quarter`, `month`, `month_name`, `day`, `day_of_week`, `is_weekend` |
 | `dim_agency` | one row per agency | `agency_key`, `code`, `name` |
 | `dim_complaint` | one row per complaint type and descriptor | `complaint_key`, `complaint_type`, `descriptor` |
 | `dim_location` | one row per location | `location_key`, `borough`, `zip_code`, `community_board` |

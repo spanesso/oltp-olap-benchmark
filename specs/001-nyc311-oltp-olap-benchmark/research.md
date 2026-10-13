@@ -213,6 +213,42 @@ source. Real data is only ever downloaded by the user running the benchmark.
 attribution wording before the README is published. The README will name the source and the
 dataset id, state that the data is provided by the City as is, and link to the portal.
 
+## R9. Findings from implementing User Story 1 (2026-10-12)
+
+**Bulk load with psycopg (task T020)** [V, psycopg 3.3.6]: `cursor.copy("COPY ... FROM STDIN")`
+with `copy.write_row()` loads a page into a temporary table, and iterating
+`cursor.copy("COPY (...) TO STDOUT")` streams a table out. Both are used: the first for
+staging, the second for the DuckDB fallback path.
+
+**Source data checks on the 200,000 staged rows (task T022)** [V]:
+
+- `unique_key` is unique (200,000 distinct values) and always 8 digits, so `bigint` is a
+  valid primary key type.
+- Every agency code has exactly one name (14 codes, 14 code-name pairs). The agency table
+  keeps its `(code, name)` key anyway: it costs nothing and does not assume the property
+  holds for the rest of the cut.
+- 2,046 rows have no `closed_date` and 39 have `closed_date` before `created_date`.
+- No dimension value is missing in this sample; the source uses its own `Unspecified` for
+  borough. The `Unknown` member is exercised by the synthetic fixture only.
+
+**First real run of the quick profile (task T026)** [V, one run, Apple M1 Pro]:
+
+| Step | Duration |
+|---|---|
+| Download 200,000 rows (4 pages of 50,000) | 57.1 s |
+| Build OLTP model (PostgreSQL) | 4.9 s |
+| Build OLAP model (DuckDB, via the `postgres` extension) | 0.4 s |
+
+- Both models hold 200,000 requests; a second `load` requests nothing from the API and a
+  second `build` gives the same counts.
+- The quick profile spans 2024-01-01 to 2024-01-22: three weeks, a single month.
+- Sizes: 14 agencies, 168 complaint types, 814 descriptors, 6 boroughs, 613 locations,
+  5 channels, 7 statuses. The DuckDB file is 13 MB; the OLTP request table with its indexes
+  is 31 MB.
+- Extrapolation to the full profile, assuming linear cost: about 24 minutes of download and
+  about 2 minutes to build both models, inside the 1-hour limit of SC-002. This is an
+  estimate until the full profile is actually run.
+
 ## Sources verified
 
 - `https://data.cityofnewyork.us/resource/erm2-nwe9.json` (sample rows, counts, aggregates)
@@ -229,6 +265,3 @@ dataset id, state that the data is provided by the City as is, and link to the p
 | Item | Blocks | Resolved by |
 |---|---|---|
 | NYC Open Data terms of use (page returned 404) | README wording | human, in a browser |
-| Uniqueness of `unique_key` across the whole cut | OLTP primary key | T022 |
-| Whether `agency_name` is determined by `agency` | agency table key | first modeling task |
-| `psycopg` `COPY` API details | bulk load | first loading task |
