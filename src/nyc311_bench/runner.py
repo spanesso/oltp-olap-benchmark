@@ -53,6 +53,8 @@ class QueryResult:
     result_rows: int
     oltp: Timing
     olap: Timing
+    oltp_plan: str = ""
+    olap_plan: str = ""
 
     @property
     def speedup(self) -> float:
@@ -133,6 +135,17 @@ def check_parity(postgres, duck, expected_rows: int | None = None) -> int:
     return oltp_rows
 
 
+def explain_query(postgres, duck, query: Query) -> tuple[str, str]:
+    """Capture EXPLAIN ANALYZE output for a query on both models."""
+    oltp_sql = query.sql("oltp")
+    olap_sql = query.sql("olap")
+    oltp_rows = postgres.execute(f"EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) {oltp_sql}").fetchall()
+    oltp_plan = "\n".join(row[0] for row in oltp_rows)
+    olap_rows = duck.execute(f"EXPLAIN ANALYZE {olap_sql}").fetchall()
+    olap_plan = "\n".join(row[0] for row in olap_rows)
+    return oltp_plan, olap_plan
+
+
 def run_queries(
     postgres,
     duck,
@@ -158,7 +171,15 @@ def run_queries(
             raise ParityError(
                 f"query {query.id} returns {oltp_rows:,} rows on OLTP and {olap_rows:,} on OLAP"
             )
-        result = QueryResult(query=query, result_rows=oltp_rows, oltp=oltp, olap=olap)
+        oltp_plan, olap_plan = explain_query(postgres, duck, query)
+        result = QueryResult(
+            query=query,
+            result_rows=oltp_rows,
+            oltp=oltp,
+            olap=olap,
+            oltp_plan=oltp_plan,
+            olap_plan=olap_plan,
+        )
         results.append(result)
         report(
             f"  {query.id}: OLTP {oltp.median_ms:,.1f} ms, OLAP {olap.median_ms:,.1f} ms, "

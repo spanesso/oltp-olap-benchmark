@@ -76,6 +76,11 @@ def build_report(
                 "oltp": _timing(r.oltp),
                 "olap": _timing(r.olap),
                 "speedup": round(r.speedup, 2),
+                **(
+                    {"oltp_explain": r.oltp_plan, "olap_explain": r.olap_plan}
+                    if r.oltp_plan
+                    else {}
+                ),
             }
             for r in results
         ],
@@ -185,6 +190,31 @@ def render_markdown(report: dict[str, Any]) -> str:
         + ", ".join(f"{k} = {v}" for k, v in env["duckdb_settings"].items()),
         "",
     ]
+
+    has_plans = any(q.get("oltp_explain") for q in report["queries"])
+    if has_plans:
+        lines += ["## Execution plans", ""]
+        for query in report["queries"]:
+            if not query.get("oltp_explain"):
+                continue
+            short_id = query["id"].split("_")[0]
+            lines += [
+                f"### {short_id}: {query['question']}",
+                "",
+                "**OLTP (PostgreSQL)**",
+                "",
+                "```",
+                query["oltp_explain"],
+                "```",
+                "",
+                "**OLAP (DuckDB)**",
+                "",
+                "```",
+                query["olap_explain"],
+                "```",
+                "",
+            ]
+
     return "\n".join(lines)
 
 

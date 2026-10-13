@@ -59,6 +59,38 @@ percentile over the 10 measured runs.
 **Significance rule**: OLAP is at least 3× faster on the median in at least two thirds of
 the analytical queries. The rule is evaluated only on the full profile (5,000,000 requests).
 
+## Alternatives considered
+
+**Data source.** Fifteen public APIs were evaluated in two research rounds. Chicago Crimes
+(8.6 M rows) was a strong candidate but offered less volume; openFDA (20 M reports) imposed
+strict rate limits (240/min); USGS earthquakes had only 712 K rows; GitHub events provided
+no historical backfill. NYC 311 won on volume (22.7 M rows), API quality (pages of 50,000,
+no throttling with an app token), and natural analytical dimensions (agency, complaint type,
+borough, channel, time).
+
+**OLAP engine.** DuckDB was chosen over ClickHouse (requires a running server and adds
+operational complexity) and PostgreSQL materialized views (same row-oriented engine, so the
+columnar advantage would not be visible). DuckDB is embedded, columnar, and needs no
+infrastructure beyond a single file.
+
+## Scaling to 10x
+
+With 50,000,000 rows the main changes would be:
+
+- **Ingestion.** Parallel page fetching (currently sequential to respect the API) and chunked
+  staging inserts. The current 27-minute load would grow to roughly 4–5 hours without
+  parallelism.
+- **PostgreSQL.** Tuning becomes mandatory: `shared_buffers` to 4+ GB, `work_mem` to 256 MB+,
+  `effective_cache_size` sized to available RAM. Table partitioning on `created_at` (monthly
+  ranges) would keep index sizes manageable. The q5 anomaly (9 ms → 1,018 ms at 5 M)
+  suggests query plans degrade under default settings at scale.
+- **DuckDB.** Likely still fast — columnar engines handle analytical scans well at this
+  scale — but `memory_limit` may need to grow beyond 12.7 GiB.
+- **Pipeline.** Add a data-validation step and consider Parquet as an intermediate format for
+  portability between engines.
+- **Benchmark.** Add concurrent-user simulation to test contention, and include the
+  transactional operations (US4) to show the side of the trade-off where OLTP wins.
+
 ## Limitations
 
 - **Engine defaults, not tuned.** PostgreSQL ran with the Docker image defaults
