@@ -151,11 +151,11 @@ it fail and name the query.
 
 **Purpose**: the root deliverables.
 
-- [ ] T049 [P] Write `README.md`: what the project shows, the official results table copied from `results/benchmark_full.md`, prerequisites, the quick-profile reproduction in at most 5 commands, the full-profile command, how to obtain the app token, and the data source attribution and terms from T008
-- [ ] T050 [P] Write `DESIGN.md` (maximum 2 pages): the pipeline, both models and why each is shaped as it is, the six queries, the measurement method, and the limitations (schema and engine effects combined, in-process versus TCP, default engine settings, quick profile not representative)
-- [ ] T051 [P] Write `AI_WORKFLOW.md` from the "Log for AI_WORKFLOW.md" in `CLAUDE.md`: the SDD flow followed, the agent modes and harness, and every real correction made to AI-generated work
-- [ ] T052 Walk through `specs/001-nyc311-oltp-olap-benchmark/quickstart.md` end to end, including the checks table, and fix any deviation
-- [ ] T053 Update "Current status" in `CLAUDE.md`, run `graphify update .`, and run `/speckit-analyze`
+- [x] T049 [P] Write `README.md`: what the project shows, the official results table copied from `results/benchmark_full.md`, prerequisites, the quick-profile reproduction in at most 5 commands, the full-profile command, how to obtain the app token, and the data source attribution and terms from T008
+- [x] T050 [P] Write `DESIGN.md` (maximum 2 pages): the pipeline, both models and why each is shaped as it is, the six queries, the measurement method, and the limitations (schema and engine effects combined, in-process versus TCP, default engine settings, quick profile not representative)
+- [x] T051 [P] Write `AI_WORKFLOW.md` from the "Log for AI_WORKFLOW.md" in `CLAUDE.md`: the SDD flow followed, the agent modes and harness, and every real correction made to AI-generated work
+- [x] T052 Walk through `specs/001-nyc311-oltp-olap-benchmark/quickstart.md` end to end, including the checks table, and fix any deviation
+- [x] T053 Update "Current status" in `CLAUDE.md`, run `graphify update .`, and run `/speckit-analyze`
 
 ---
 

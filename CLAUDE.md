@@ -53,16 +53,15 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
 - **Phase 1 (constitution, spec, plan, tasks): done.** Constitution v1.1.0, spec and plan
   approved (DuckDB as OLAP engine), 57 tasks in
   `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
-- **Phase 2 (implementation): in progress.** T001–T048 done: User Stories 1 to 3 and the
-  official measurement. Full profile (5,000,000 requests): OLAP 55x to 184x faster on all
-  six queries, significance threshold reached (6 of 6), medians repeatable within 10%,
-  every query equivalent on both models. Results committed in `results/`. 182 tests pass.
-- **Next**: documentation (T049–T053): README, DESIGN, AI_WORKFLOW, quickstart walkthrough.
-  Requires human authorization. User Story 4 (T054–T057) is optional.
-- The test fixture is synthetic: the NYC Open Data terms page returned 404, so no real rows
-  are committed.
-- Pending from the human: read the NYC Open Data terms in a browser before the README is
-  published.
+- **Phase 2 (implementation): done.** T001–T053 complete. User Stories 1 to 3, the official
+  measurement, and the documentation deliverables. Full profile (5,000,000 requests): OLAP
+  55x to 184x faster on all six queries, significance threshold reached (6 of 6), medians
+  repeatable within 10%, every query equivalent on both models. Results committed in
+  `results/`. 182 tests pass. README.md, DESIGN.md, AI_WORKFLOW.md published.
+- **Next**: User Story 4 (T054–T057) is optional (transactional operations). Requires
+  human authorization.
+- The test fixture is synthetic: the NYC Open Data terms page returned 404 and no explicit
+  license was found, so no real rows are committed. The README attributes the data source.
 
 ## Log for AI_WORKFLOW.md
 Real corrections made to AI-generated work, to be documented at the end:
