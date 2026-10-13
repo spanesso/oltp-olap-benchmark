@@ -53,6 +53,11 @@ body {
 
 .dashboard-header {
   margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .dashboard-header h1 {
@@ -65,6 +70,84 @@ body {
   margin: 0;
   color: var(--color-text-secondary);
   font-size: 0.875rem;
+}
+
+/* ── Live run button ──────────────────────────────────────────────── */
+.live-run-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 220px;
+}
+
+.live-run-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--color-olap);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-olap);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.live-run-btn:hover {
+  background: var(--color-olap);
+  color: #fff;
+}
+
+.live-run-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.live-run-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-olap);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.live-run-elapsed {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-olap);
+}
+
+.live-run-hint {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.live-run-error {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #ef4444;
+  text-align: right;
+  max-width: 280px;
 }
 
 .stats-row {

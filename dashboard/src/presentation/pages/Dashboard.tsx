@@ -6,9 +6,10 @@ import { QueryTable } from "@presentation/components/QueryTable";
 import { EnvironmentCard } from "@presentation/components/EnvironmentCard";
 import { PipelineDiagram } from "@presentation/components/PipelineDiagram";
 import { ExplainPanel } from "@presentation/components/ExplainPanel";
+import { LiveRunButton } from "@presentation/components/LiveRunButton";
 
 export function Dashboard() {
-  const { data, loading, error } = useBenchmarkData();
+  const { data, loading, error, running, runError, triggerLiveRun } = useBenchmarkData();
 
   if (loading) {
     return <div className="loading">Loading benchmark results&hellip;</div>;
@@ -24,12 +25,15 @@ export function Dashboard() {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1>OLTP vs OLAP Benchmark</h1>
-        <p>
-          {data.dataset.source} &mdash;{" "}
-          {data.dataset.rows.toLocaleString()} rows &mdash; {data.profile}{" "}
-          profile
-        </p>
+        <div>
+          <h1>OLTP vs OLAP Benchmark</h1>
+          <p>
+            {data.dataset.source} &mdash;{" "}
+            {data.dataset.rows.toLocaleString()} rows &mdash; {data.profile}{" "}
+            profile
+          </p>
+        </div>
+        <LiveRunButton running={running} onRun={triggerLiveRun} runError={runError} />
       </header>
 
       <div className="stats-row">
