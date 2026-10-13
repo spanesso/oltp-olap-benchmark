@@ -53,10 +53,9 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
 - **Phase 1 (constitution, spec, plan, tasks): done.** Constitution v1.1.0, spec and plan
   approved (DuckDB as OLAP engine), 57 tasks in
   `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
-- **Phase 2 (implementation): in progress.** T001–T026 done except T004. User Story 1 works
+- **Phase 2 (implementation): in progress.** T001–T026 done. User Story 1 works
   end to end: `python benchmark.py load|build --profile quick` staged 200,000 real requests
   (57 s) and built both models (5 s) with equal counts; 107 tests pass.
-- Blocked on the human: T004 (`.env.example`; the agent may not edit `.env*` files).
 - **Next**: User Story 2 (T027–T039), the six queries, the runner and the report. Requires
   human authorization.
 - The test fixture is synthetic: the NYC Open Data terms page returned 404, so no real rows

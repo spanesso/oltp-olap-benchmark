@@ -32,7 +32,7 @@ tested on its own.
 - [x] T001 Create `pyproject.toml` with package `nyc311_bench` under `src/`, Python `>=3.12`, runtime dependencies `psycopg[binary]>=3.2` and `duckdb>=1.4`, dev dependencies `pytest` and `ruff`, and the ruff and pytest configuration (pytest markers `integration` and `loaded`)
 - [x] T002 Create the package skeleton: `src/nyc311_bench/__init__.py`, empty `tests/unit/__init__.py`, `tests/integration/__init__.py`, and directories `sql/staging/`, `sql/oltp/`, `sql/olap/`, `results/` (with `.gitkeep`)
 - [x] T003 [P] Create `Makefile` with targets `up`, `install`, `bench` (with `PROFILE`, default `quick`), `test`, `lint`, as specified in contracts/cli.md
-- [ ] T004 [P] Create `.env.example` documenting `SOCRATA_APP_TOKEN`, the `POSTGRES_*` variables and `OLAP_PATH`, as specified in contracts/cli.md
+- [x] T004 [P] Create `.env.example` documenting `SOCRATA_APP_TOKEN`, the `POSTGRES_*` variables and `OLAP_PATH`, as specified in contracts/cli.md
 - [x] T005 Install the project into `.venv` with `make install` and confirm `python -c "import duckdb, psycopg"` works (the two dependencies were approved by the human on 2026-10-12)
 
 ---
