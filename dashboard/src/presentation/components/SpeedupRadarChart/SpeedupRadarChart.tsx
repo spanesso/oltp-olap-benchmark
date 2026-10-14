@@ -52,7 +52,7 @@ export function SpeedupRadarChart({ queries }: Props) {
                 <div className="custom-tooltip">
                   <div className="tooltip-row">
                     <span className="tooltip-label">{d.query}</span>
-                    <span style={{ color: "var(--color-speedup)", fontWeight: 600 }}>
+                    <span style={{ color: "var(--color-olap)", fontWeight: 600 }}>
                       {d.Speedup}×
                     </span>
                   </div>
@@ -67,19 +67,19 @@ export function SpeedupRadarChart({ queries }: Props) {
           <Radar
             name="Significance threshold (3×)"
             dataKey="Threshold"
-            stroke="#ef4444"
+            stroke="var(--color-oltp)"
             strokeDasharray="5 3"
-            fill="#ef4444"
-            fillOpacity={0.05}
+            fill="var(--color-oltp)"
+            fillOpacity={0.08}
             dot={false}
           />
           <Radar
             name="OLAP speedup"
             dataKey="Speedup"
-            stroke="var(--color-speedup)"
-            fill="var(--color-speedup)"
+            stroke="var(--color-olap)"
+            fill="var(--color-olap)"
             fillOpacity={0.25}
-            dot={{ fill: "var(--color-speedup)", r: 4 }}
+            dot={{ fill: "var(--color-olap)", r: 4 }}
           />
         </RadarChart>
       </ResponsiveContainer>
