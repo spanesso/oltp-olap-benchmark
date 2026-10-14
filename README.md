@@ -1,6 +1,6 @@
 # OLTP vs OLAP Benchmark on NYC 311 Service Requests
 
-[![CI](https://github.com/spanesso/oltp-olap-benchmark/actions/workflows/ci.yml/badge.svg?branch=001-nyc311-oltp-olap-benchmark)](https://github.com/spanesso/oltp-olap-benchmark/actions/workflows/ci.yml)
+[![CI](https://github.com/spanesso/oltp-olap-benchmark/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/spanesso/oltp-olap-benchmark/actions/workflows/ci.yml)
 
 A benchmark that loads NYC 311 service requests from the public Socrata API, builds a
 normalized OLTP model in PostgreSQL and a star-schema OLAP model in DuckDB, runs six
