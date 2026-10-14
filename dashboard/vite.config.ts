@@ -15,6 +15,7 @@ export default defineConfig({
       '@domain': resolve(root, 'src/domain'),
       '@infra': resolve(root, 'src/infrastructure'),
       '@presentation': resolve(root, 'src/presentation'),
+      '@': resolve(root, 'src'),
     },
   },
 })

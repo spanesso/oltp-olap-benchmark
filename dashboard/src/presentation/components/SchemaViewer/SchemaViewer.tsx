@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useI18n } from "@/i18n";
 
 interface Col {
   name: string;
@@ -445,50 +446,52 @@ function SchemaDiagram({
 // ─── Legend ──────────────────────────────────────────────────────────────────
 
 function Legend() {
+  const { t } = useI18n();
   return (
     <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 16, fontSize: "0.78rem", color: "var(--color-text-secondary)" }}>
-      <span><strong style={{ color: "#fbbf24" }}>PK</strong> — clave primaria</span>
-      <span><strong style={{ color: "#60a5fa" }}>FK</strong> — clave foránea</span>
-      <span><strong>·</strong> columna regular</span>
-      <span style={{ borderTop: "2px dashed var(--color-text-secondary)", display: "inline-block", width: 28, verticalAlign: "middle", marginRight: 4 }} /> relación 1→N
+      <span><strong style={{ color: "#fbbf24" }}>PK</strong> — {t("schema_legend_pk").replace(/^PK — /, "")}</span>
+      <span><strong style={{ color: "#60a5fa" }}>FK</strong> — {t("schema_legend_fk").replace(/^FK — /, "")}</span>
+      <span><strong>·</strong> {t("schema_legend_col")}</span>
+      <span style={{ borderTop: "2px dashed var(--color-text-secondary)", display: "inline-block", width: 28, verticalAlign: "middle", marginRight: 4 }} /> {t("schema_legend_rel")}
     </div>
   );
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "oltp", label: "OLTP (PostgreSQL 3NF)" },
-  { id: "olap", label: "OLAP — Star Schema (DuckDB)" },
-  { id: "staging", label: "Staging" },
-];
-
 export function SchemaViewer() {
   const [active, setActive] = useState<Tab>("oltp");
+  const { t } = useI18n();
+
+  const TABS: { id: Tab; label: string }[] = [
+    { id: "oltp",    label: t("schema_tab_oltp")    },
+    { id: "olap",    label: t("schema_tab_olap")    },
+    { id: "staging", label: t("schema_tab_staging") },
+  ];
 
   return (
     <div>
       {/* Tab bar */}
       <div style={{ display: "flex", gap: 0, borderBottom: "2px solid var(--color-border)", marginBottom: 20 }}>
-        {TABS.map((t) => (
+        {TABS.map((tab) => (
           <button
-            key={t.id}
-            onClick={() => setActive(t.id)}
+            key={tab.id}
+            onClick={() => setActive(tab.id)}
             style={{
               background: "none",
               border: "none",
-              borderBottom: active === t.id ? `2px solid ${ACCENT[t.id]}` : "2px solid transparent",
+              borderBottom: active === tab.id ? `2px solid ${ACCENT[tab.id]}` : "2px solid transparent",
               marginBottom: -2,
               padding: "8px 20px",
               cursor: "pointer",
-              fontWeight: active === t.id ? 700 : 400,
+              fontWeight: active === tab.id ? 700 : 400,
               fontSize: "0.875rem",
-              color: active === t.id ? ACCENT[t.id] : "var(--color-text-secondary)",
+              color: active === tab.id ? ACCENT[tab.id] : "var(--color-text-secondary)",
               transition: "color 0.15s",
               whiteSpace: "nowrap",
             }}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -511,7 +514,7 @@ export function SchemaViewer() {
           tab="olap"
           canvasW={940}
           canvasH={910}
-          note="Esquema estrella — fact_service_request en el centro · 6 dimensiones radiales a 60°"
+          note={t("schema_olap_note")}
         />
       )}
       {active === "staging" && (
@@ -521,7 +524,7 @@ export function SchemaViewer() {
           tab="staging"
           canvasW={860}
           canvasH={430}
-          note="Las tablas de staging no tienen relaciones entre sí — cada una es independiente"
+          note={t("schema_staging_note")}
         />
       )}
     </div>
