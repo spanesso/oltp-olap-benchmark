@@ -55,8 +55,8 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
   `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
 - **Phase 2 (implementation): done.** T001–T053 complete. User Stories 1 to 3, the official
   measurement, and the documentation deliverables. Full profile (5,000,000 requests): OLAP
-  55x to 184x faster on all six queries, significance threshold reached (6 of 6), medians
-  repeatable within 10%, every query equivalent on both models. Results committed in
+  47x to 177x faster on all six queries (committed run; an earlier run gave 55x to 184x),
+  significance threshold reached (6 of 6), every query equivalent on both models. Results committed in
   `results/`. 182 tests pass. README.md, DESIGN.md, AI_WORKFLOW.md published.
 - **Next**: User Story 4 (T054–T057) is optional (transactional operations). Requires
   human authorization.

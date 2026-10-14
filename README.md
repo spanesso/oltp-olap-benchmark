@@ -12,16 +12,21 @@ data model.
 
 | Query | Question | OLTP (ms) | OLAP (ms) | Speedup |
 |-------|----------|----------:|----------:|---------|
-| q1 | Requests per complaint type, month and borough | 2,373.8 | 28.1 | 84.6x |
-| q2 | Top 10 complaint types per ZIP with avg resolution | 1,260.2 | 22.8 | 55.3x |
-| q3 | Closure rate within 30 days by agency and channel | 692.3 | 11.6 | 59.9x |
-| q4 | 90th percentile resolution time by agency and quarter | 4,419.2 | 32.2 | 137.2x |
-| q5 | Noise complaints in Brooklyn by day of week and hour | 1,018.5 | 5.5 | 183.7x |
-| q6 | Channel share of volume by quarter | 1,989.4 | 12.2 | 163.3x |
+| q1 | Requests per complaint type, month and borough | 3,488.9 | 65.0 | 53.7x |
+| q2 | Top 10 complaint types per ZIP with avg resolution | 1,919.7 | 34.3 | 55.9x |
+| q3 | Closure rate within 30 days by agency and channel | 724.4 | 15.3 | 47.3x |
+| q4 | 90th percentile resolution time by agency and quarter | 6,952.4 | 39.3 | 176.8x |
+| q5 | Noise complaints in Brooklyn by day of week and hour | 1,119.5 | 6.5 | 173.5x |
+| q6 | Channel share of volume by quarter | 2,398.4 | 28.3 | 84.8x |
 
 **Verdict**: significance threshold reached. All 6 analytical queries are at least 3x
-faster on the OLAP model (rule: at least two thirds). Medians are repeatable within 10%
-across consecutive runs.
+faster on the OLAP model (rule: at least two thirds).
+
+These are the committed numbers in `results/benchmark_full.json`, taken from a full-profile
+re-measurement run through the dashboard. An earlier full run on the same machine gave
+55x to 184x (for example q1: 2,373.8 ms vs 28.1 ms). Absolute times vary between runs
+(q4 on OLTP went from 4,419 ms to 6,952 ms), but the speedup stays above 47x on every
+query in both runs.
 
 Full details, including per-run timings: [`results/benchmark_full.md`](results/benchmark_full.md).
 

@@ -91,7 +91,7 @@ With 50,000,000 rows the main changes would be:
   parallelism.
 - **PostgreSQL.** Tuning becomes mandatory: `shared_buffers` to 4+ GB, `work_mem` to 256 MB+,
   `effective_cache_size` sized to available RAM. Table partitioning on `created_at` (monthly
-  ranges) would keep index sizes manageable. The q5 anomaly (9 ms → 1,018 ms at 5 M)
+  ranges) would keep index sizes manageable. The q5 anomaly (9 ms → 1,119 ms at 5 M)
   suggests query plans degrade under default settings at scale.
 - **DuckDB.** Likely still fast — columnar engines handle analytical scans well at this
   scale — but `memory_limit` may need to grow beyond 12.7 GiB.
@@ -109,8 +109,8 @@ With 50,000,000 rows the main changes would be:
 - **Schema and engine effects are combined.** The benchmark compares a normalized row-store
   model against a star-schema columnar model. It does not separate the contribution of the
   schema design from the contribution of the storage engine.
-- **q5 anomaly.** On the OLTP side, q5 grew from 9 ms on 200,000 rows to 1,018 ms on
-  5,000,000 rows — far more than the data growth. A query-plan change under the small
+- **q5 anomaly.** On the OLTP side, q5 grew from 9 ms on 200,000 rows to 1,119 ms on
+  5,000,000 rows (1,018 ms in an earlier full run) — far more than the data growth. A query-plan change under the small
   default `work_mem` is the likely cause, but this was not investigated.
-- **Single environment.** One machine (Apple M1 Pro, 10 cores, 16 GB), one run of each
-  configuration, no concurrent users.
+- **Single environment.** One machine (Apple M1 Pro, 10 cores, 16 GB), two full runs
+  (the committed one and an earlier one), no concurrent users.
