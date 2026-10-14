@@ -1,5 +1,7 @@
 # OLTP vs OLAP Benchmark on NYC 311 Service Requests
 
+[![CI](https://github.com/spanesso/oltp-olap-benchmark/actions/workflows/ci.yml/badge.svg?branch=001-nyc311-oltp-olap-benchmark)](https://github.com/spanesso/oltp-olap-benchmark/actions/workflows/ci.yml)
+
 A benchmark that loads NYC 311 service requests from the public Socrata API, builds a
 normalized OLTP model in PostgreSQL and a star-schema OLAP model in DuckDB, runs six
 analytical queries on both, and publishes compared timings. The goal is to show, with
@@ -106,6 +108,20 @@ results are written to `results/benchmark_full.md`.
 ### Read the results without running anything
 
 Open [`results/benchmark_full.md`](results/benchmark_full.md).
+
+## Continuous integration
+
+Every push and pull request runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on a
+clean GitHub runner, in two parallel jobs:
+
+| Job | What it checks |
+|---|---|
+| Python | `ruff check` and `ruff format --check`; the unit tests; the integration tests against a PostgreSQL 17 service container, using the synthetic fixture (no network, no API token) |
+| Dashboard | `npm run build` (TypeScript type-check plus the production build) and the Vitest suite |
+
+Both jobs pass on the branch (the first run found nothing to fix). CI does not run the
+benchmark itself: measuring 5,000,000 rows on a shared runner would not be comparable with
+the official numbers, so those stay reproducible locally with `make bench PROFILE=full`.
 
 ## How it works
 
