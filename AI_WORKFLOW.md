@@ -36,10 +36,6 @@ proceed.
 
 ## Key prompts
 
-The human worked in Spanish; prompts are translated here. The first group is condensed
-from the session history (wording approximate); the second group is quoted from the most
-recent session.
-
 **Directing the process (condensed)**
 
 - *Master prompt, phase by phase*: build the OLTP vs OLAP benchmark following SDD, one
@@ -56,15 +52,19 @@ recent session.
   would change at 10x" sections of DESIGN.md, and a React + TypeScript dashboard with
   Clean Architecture, building reusable skills first and then the modules.
 
-**Iterating on the dashboard (quoted)**
+**Iterating on the dashboard (quoted from the last session)**
 
-- "How can we make the DuckDB side show the real plan, with the timings?"
-- "Why does the DuckDB side look better structured? Is that something we did?"
-- "Can you improve the layout of these tables so it looks more like a star?"
-- "Explain this query, 90th percentile of resolution time per agency and quarter. What
-  is a percentile 90?"
-- "In the introduction add the dataset URL and the parameters we used to consume it, and
-  an example record in JSON format."
+These prompts show the working pattern: the human reviews the rendered result, asks the
+agent to justify what it produced, and requests targeted changes. Prompts that only
+asked for an explanation did not lead to code changes.
+
+| Prompt | Intent | Outcome |
+|---|---|---|
+| "How can we make the DuckDB side show the real plan, with the timings?" | Request a feature after seeing only a placeholder in the plans panel | Exposed the `row[0]` vs `row[1]` bug in the plan capture; fixed in `bd1d973` (correction 14) |
+| "Why does the DuckDB side look better structured? Is that something we did?" | Challenge the agent to explain an observation about the schema diagrams rather than accept it | Understanding check; no dedicated commit |
+| "Can you improve the layout of these tables so it looks more like a star?" | Visual review of the OLAP diagram | Six dimensions placed at exact 60° positions around the fact table; `69bfac8` (correction 17) |
+| "Explain this query, 90th percentile of resolution time per agency and quarter. What is a percentile 90?" | Make sure the human understands what q4 measures before defending it | Understanding check; no dedicated commit |
+| "In the introduction add the dataset URL and the parameters we used to consume it, and an example record in JSON format." | Specific content change for the evaluator | Endpoint, query parameters and a JSON record added to the dashboard introduction; `218f440` |
 
 ## How AI output was verified
 
@@ -186,21 +186,58 @@ occurred.
     dimensions were placed at exact 60° positions around the fact table (commit
     `69bfac8`).
 
+### Extras: control models, transactional operations, CI
+
+These were added after the first complete version, on the human's request to strengthen the
+result. They were reviewed by a separate agent run (`/code-review` at high effort) before
+being measured; the findings below are the ones that changed something.
+
+18. **Different physical layout in the control**: the normalized model copied into DuckDB was
+    loaded without an `ORDER BY`, while the star fact table is stored in creation order. The
+    "schema on DuckDB" effect would have included a load-order effect. The review found it;
+    both are now stored in creation order.
+19. **False fairness claim**: the experiments report said the star schema in PostgreSQL had
+    "the same kind of indexes as the normalized model", but its tables had no primary keys.
+    Found by the review; primary keys were added and the sentence now describes what exists.
+20. **Control models reused by row count only**: the command skipped rebuilding a control if
+    its row count matched, which could measure a stale or index-less model. The controls are
+    now rebuilt every time (about 25 seconds).
+21. **Lookup identifiers biased to the start of the table**: T1 cycled through a list of 20
+    identifiers but a run only uses 11, and on small tables the list collapsed to the first
+    rows. Now the list has exactly as many identifiers as runs, spread over the whole key range.
+22. **Unsupported repeatability claim**: the README and CLAUDE.md said medians were "repeatable
+    within 10%". Comparing two full runs showed differences of up to 57% on OLTP times (the
+    laptop was running other software). The claim was removed, the observed variation is
+    documented, and the experiments report now states how many series meet SC-006.
+23. **Official OLAP file opened writable**: running the transactional group opened
+    `data/olap.duckdb` for writing for the whole run, including the analytical queries. The
+    analytical measurements now use a read-only handle; a writable one opens only for the T2
+    insert, which is always rolled back.
+
+Not changed on purpose: T2 is measured inside a rolled-back transaction, so it leaves out the
+commit. The review flagged it; the limitation is stated in the query text, README and DESIGN
+instead of being hidden.
+
 ## Observations
 
-The AI agent built the entire project — from an empty directory to a measured
-benchmark with 182 passing tests and a React dashboard with 25 more — over several
-working sessions. The SDD framework
-and the Claude Code harness provided the structure that made this possible: the
-constitution prevented the agent from chasing a significance threshold, the spec
-kept the scope bounded, and the hooks enforced commit hygiene automatically.
+The AI agent built the entire project — from an empty directory to a measured benchmark
+with 233 Python tests and a React dashboard with 81 more — over several working sessions.
+The SDD framework and the Claude Code harness provided the structure that made this
+possible: the constitution prevented the agent from chasing a significance threshold, the
+spec kept the scope bounded, and the hooks enforced commit hygiene automatically.
 
-The corrections cluster in three areas: **harness configuration** (7 of 17), where the
-agent did not know how Claude Code itself works, **realism checks** (4 of 17), where the
-human caught assumptions that would have been misleading or fragile, and the
-**dashboard** (4 of 17), where visual output had to be inspected by a person. The two
-remaining ones (commit granularity and silent failure) were caught by the automated
-`/speckit-analyze` step, not by the human directly.
+The 23 corrections cluster in four areas: **harness configuration** (7), where the agent did
+not know how Claude Code itself works; **realism checks** (4), where the human caught
+assumptions that would have been misleading or fragile; the **dashboard** (4), where visual
+output had to be inspected by a person; and **measurement validity** (6), found by the
+independent review and by comparing runs. The other two (commit granularity and silent
+failure) were caught by the automated `/speckit-analyze` step.
 
-Every correction was applied before the affected code was used downstream. None
-required reworking completed features.
+The measurement-validity group is the one to learn from: none of those mistakes produced a
+wrong test or a crash. They produced numbers or sentences that looked right and were not
+(a layout difference inside the control, a fairness claim nobody had checked, a repeatability
+claim from two lucky runs). Only a second reader, human or agent, with the code open
+caught them.
+
+Corrections 14 and 22 touched results and documents that had already been published, and
+were fixed there; the others were applied before the affected code was used downstream.
