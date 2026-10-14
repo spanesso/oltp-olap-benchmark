@@ -142,7 +142,8 @@ def explain_query(postgres, duck, query: Query) -> tuple[str, str]:
     oltp_rows = postgres.execute(f"EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) {oltp_sql}").fetchall()
     oltp_plan = "\n".join(row[0] for row in oltp_rows)
     olap_rows = duck.execute(f"EXPLAIN ANALYZE {olap_sql}").fetchall()
-    olap_plan = "\n".join(row[0] for row in olap_rows)
+    # DuckDB EXPLAIN ANALYZE returns (key, value) rows; row[1] is the plan text.
+    olap_plan = "\n".join(row[1] for row in olap_rows)
     return oltp_plan, olap_plan
 
 
