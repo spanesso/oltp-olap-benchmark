@@ -91,7 +91,7 @@ With 50,000,000 rows the main changes would be:
   parallelism.
 - **PostgreSQL.** Tuning becomes mandatory: `shared_buffers` to 4+ GB, `work_mem` to 256 MB+,
   `effective_cache_size` sized to available RAM. Table partitioning on `created_at` (monthly
-  ranges) would keep index sizes manageable. The q5 anomaly (9 ms → 1,119 ms at 5 M)
+  ranges) would keep index sizes manageable. The q5 anomaly (9 ms → about 1,200 ms at 5 M)
   suggests query plans degrade under default settings at scale.
 - **DuckDB.** Likely still fast — columnar engines handle analytical scans well at this
   scale — but `memory_limit` may need to grow beyond 12.7 GiB.
@@ -106,11 +106,18 @@ With 50,000,000 rows the main changes would be:
   (`shared_buffers` 128 MB, `work_mem` 4 MB, 2 parallel workers per gather) inside the
   Docker Desktop virtual machine. DuckDB ran natively with 10 threads and 12.7 GiB of
   memory. A tuned PostgreSQL would narrow the gap; by how much was not measured.
-- **Schema and engine effects are combined.** The benchmark compares a normalized row-store
-  model against a star-schema columnar model. It does not separate the contribution of the
-  schema design from the contribution of the storage engine.
-- **q5 anomaly.** On the OLTP side, q5 grew from 9 ms on 200,000 rows to 1,119 ms on
-  5,000,000 rows (1,018 ms in an earlier full run) — far more than the data growth. A query-plan change under the small
+- **Schema and engine effects are combined in the official numbers.** They are separated in
+  `results/experiments_full.md`, which also measures the star schema on PostgreSQL and the
+  normalized schema on DuckDB: the engine explains most of the gap (25x to 185x on the
+  normalized schema) and the schema alone 1x to 8x on PostgreSQL. Those controls use the
+  queries rewritten per dialect (`sql/controls/`); every model was verified to return the
+  same rows.
+- **q5 anomaly.** On the OLTP side, q5 grew from 9 ms on 200,000 rows to about 1,200 ms on
+  5,000,000 rows — far more than the data growth. A query-plan change under the small
   default `work_mem` is the likely cause, but this was not investigated.
-- **Single environment.** One machine (Apple M1 Pro, 10 cores, 16 GB), two full runs
-  (the committed one and an earlier one), no concurrent users.
+- **Single environment.** One machine (Apple M1 Pro, 10 cores, 16 GB), several full
+  runs on a laptop that also ran other software, so absolute times vary (up to 80% on the
+  few-millisecond DuckDB queries); no concurrent users.
+- **Transactional insert without commit.** T2 is measured inside a transaction that is rolled
+  back, so it excludes the commit and the write to disk. It is not evidence about write
+  throughput.

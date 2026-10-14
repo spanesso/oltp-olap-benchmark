@@ -12,21 +12,57 @@ data model.
 
 | Query | Question | OLTP (ms) | OLAP (ms) | Speedup |
 |-------|----------|----------:|----------:|---------|
-| q1 | Requests per complaint type, month and borough | 3,488.9 | 65.0 | 53.7x |
-| q2 | Top 10 complaint types per ZIP with avg resolution | 1,919.7 | 34.3 | 55.9x |
-| q3 | Closure rate within 30 days by agency and channel | 724.4 | 15.3 | 47.3x |
-| q4 | 90th percentile resolution time by agency and quarter | 6,952.4 | 39.3 | 176.8x |
-| q5 | Noise complaints in Brooklyn by day of week and hour | 1,119.5 | 6.5 | 173.5x |
-| q6 | Channel share of volume by quarter | 2,398.4 | 28.3 | 84.8x |
+| q1 | Requests per complaint type, month and borough | 4,334.1 | 86.0 | 50.4x |
+| q2 | Top 10 complaint types per ZIP with avg resolution | 2,544.2 | 51.4 | 49.5x |
+| q3 | Closure rate within 30 days by agency and channel | 907.4 | 19.2 | 47.3x |
+| q4 | 90th percentile resolution time by agency and quarter | 4,997.3 | 40.6 | 123.1x |
+| q5 | Noise complaints in Brooklyn by day of week and hour | 1,197.6 | 6.3 | 191.5x |
+| q6 | Channel share of volume by quarter | 2,145.3 | 21.7 | 98.7x |
 
 **Verdict**: significance threshold reached. All 6 analytical queries are at least 3x
 faster on the OLAP model (rule: at least two thirds).
 
-These are the committed numbers in `results/benchmark_full.json`, taken from a full-profile
-re-measurement run through the dashboard. An earlier full run on the same machine gave
-55x to 184x (for example q1: 2,373.8 ms vs 28.1 ms). Absolute times vary between runs
-(q4 on OLTP went from 4,419 ms to 6,952 ms), but the speedup stays above 47x on every
-query in both runs.
+These are the numbers in `results/benchmark_full.json`. Absolute times move between runs
+on a laptop that is also running other software (q1 on OLTP measured 2,374 ms, 2,486 ms,
+3,489 ms and 4,334 ms across four full runs), but the speedup of the official run was above
+47x on every query, and the lowest value seen in any repetition of any run was 31x (q3).
+
+### Is it the schema or the engine?
+
+The comparison above changes two things at once. To separate them, the same queries were
+also run on the star schema inside PostgreSQL and on the normalized schema inside DuckDB.
+All four models return identical rows, and the whole grid was measured three times
+(`python benchmark.py experiments --profile full`, results in
+[`results/experiments_full.md`](results/experiments_full.md)):
+
+| Query | Engine alone (normalized schema) | Schema alone (on PostgreSQL) | Both (official) |
+|---|---:|---:|---:|
+| q1 | 64.5x | 2.8x | 77.8x |
+| q2 | 36.9x | 1.6x | 45.8x |
+| q3 | 25.6x | 1.0x | 41.6x |
+| q4 | 108.7x | 1.1x | 136.2x |
+| q5 | 185.4x | 8.0x | 233.2x |
+| q6 | 119.1x | 3.5x | 143.5x |
+
+Most of the speedup comes from the column-store engine. The star schema helps PostgreSQL
+a lot on q5 (8x, because the hour and day are precomputed and the joins are fewer) and
+barely at all on q3 and q4. Of the 24 series (query x model), 16 kept their medians within
+20% across repetitions; the widest spread was 82% on a few-millisecond DuckDB query.
+
+### Transactional operations
+
+With `--include-transactional` the runner also measures the other side of the trade-off:
+
+| Operation | OLTP (ms) | OLAP (ms) | Winner |
+|---|---:|---:|---|
+| Read one request by id (7 joins on OLTP, 5 on the star) | 2.14 | 4.13 | OLTP, 1.9x |
+| Insert one request (rolled back) | 1.34 | 0.47 | OLAP, 2.9x |
+
+OLTP wins the lookup, but by a much smaller margin than the analytical queries go the other
+way. The insert is measured inside a transaction that is rolled back so the data set does
+not change; that leaves out the commit (and its write to disk), which is where a
+transactional engine earns its keep, so this number should not be read as "OLAP is better at
+writes".
 
 Full details, including per-run timings: [`results/benchmark_full.md`](results/benchmark_full.md).
 
@@ -55,6 +91,13 @@ official timings.
 
 ```bash
 make bench PROFILE=full
+```
+
+Optional extras, on top of a loaded full profile:
+
+```bash
+python benchmark.py run --profile full --include-transactional   # lookup and insert
+python benchmark.py experiments --profile full                   # schema vs engine, 3 repeats
 ```
 
 Downloads and loads 5,000,000 requests in about 27 minutes, then measures. The official
@@ -91,8 +134,9 @@ NYC 311 API ──▶ staging (PostgreSQL) ──▶ OLTP model (PostgreSQL, 3NF
 
 ## Dashboard
 
-A React dashboard reads `results/benchmark_full.json` and renders the speedup chart,
-per-query detail table, execution plans, and environment card.
+A React dashboard reads `results/benchmark_full.json` (and `experiments_full.json` when it
+exists) and renders the speedup chart, per-query detail table, the schema-vs-engine
+breakdown, transactional operations, execution plans, and environment card.
 
 ```bash
 cd dashboard && npm run dev        # http://localhost:5173

@@ -164,14 +164,34 @@ it fail and name the query.
 **Goal**: show the side of the trade-off where the transactional model wins.
 
 **Only if time remains** after Phase 7. Skipping this phase does not affect the deliverable.
+Done after the first complete version, with measured results in `results/benchmark_full.md`.
 
 **Independent Test**: `python benchmark.py run --profile quick --include-transactional`
 adds a separate transactional section to the report.
 
-- [ ] T054 [P] [US4] Write `sql/oltp/t1_lookup_by_id.sql`, `sql/olap/t1_lookup_by_id.sql`, `sql/oltp/t2_insert_request.sql` and `sql/olap/t2_insert_request.sql` per contracts/queries.md
-- [ ] T055 [US4] Extend `src/nyc311_bench/queries.py`, `runner.py` and `cli.py` with the `transactional` group and the `--include-transactional` flag: fixed identifier list cycled across repetitions for `t1`, insert inside a rolled-back transaction for `t2`
-- [ ] T056 [US4] Extend `src/nyc311_bench/report.py` and `tests/unit/test_report.py` so transactional operations are reported in a separate section and excluded from the significance verdict
-- [ ] T057 [US4] Integration test in `tests/integration/test_transactional.py`: `t1` returns the same request on both models and `t2` leaves both row counts unchanged; then rerun the full profile with the flag and update `results/` and `README.md`
+- [x] T054 [P] [US4] Write `sql/oltp/t1_lookup_by_id.sql`, `sql/olap/t1_lookup_by_id.sql`, `sql/oltp/t2_insert_request.sql` and `sql/olap/t2_insert_request.sql` per contracts/queries.md
+- [x] T055 [US4] Extend `src/nyc311_bench/queries.py`, `runner.py` and `cli.py` with the `transactional` group and the `--include-transactional` flag: fixed identifier list cycled across repetitions for `t1`, insert inside a rolled-back transaction for `t2`
+- [x] T056 [US4] Extend `src/nyc311_bench/report.py` and `tests/unit/test_report.py` so transactional operations are reported in a separate section and excluded from the significance verdict
+- [x] T057 [US4] Integration test in `tests/integration/test_transactional.py`: `t1` returns the same request on both models and `t2` leaves both row counts unchanged; then rerun the full profile with the flag and update `results/` and `README.md`
+
+---
+
+## Phase 9: User Story 5 - Separate the effect of the schema from the effect of the engine (Priority: P3, EXTRA)
+
+**Goal**: answer "how much of the speedup is the schema and how much the engine?" and report
+how stable the measurements are. Added after the first official run (spec User Story 5,
+FR-027, FR-028).
+
+**Independent Test**: `python benchmark.py experiments --profile full --repeats 3` writes
+`results/experiments_full.json` and `.md` and does not touch `benchmark_full.*`.
+
+- [x] T058 [P] [US5] Write the star schema for PostgreSQL (`sql/controls/star_pg/schema.sql`, `load.sql`, `indexes.sql`) with primary keys and indexes comparable to the normalized model
+- [x] T059 [P] [US5] Write the six queries for the star schema on PostgreSQL and the six for the normalized schema on DuckDB (`sql/controls/star_pg/q*.sql`, `sql/controls/3nf_duckdb/q*.sql`)
+- [x] T060 [US5] Implement `src/nyc311_bench/controls.py`: build the star schema in PostgreSQL and copy the normalized tables into a separate DuckDB file (postgres extension, COPY fallback)
+- [x] T061 [US5] Implement `src/nyc311_bench/experiments.py` and the `experiments` subcommand: verify equivalence of the four models, repeat the grid, report medians, ranges, coefficients of variation, engine and schema effects and the SC-006 count
+- [x] T062 [US5] Unit tests (`tests/unit/test_experiments.py`) and integration tests (`tests/integration/test_controls.py`) on the synthetic fixture
+- [x] T063 [US5] Run the full profile and publish `results/experiments_full.md`; summarize in `README.md` and `DESIGN.md`
+- [x] T064 [US5] Show the breakdown in the dashboard (`ExperimentsPanel`) and keep transactional operations out of the analytical charts
 
 ---
 
@@ -236,7 +256,7 @@ Each phase ends with a stop: the human authorizes the next one (constitution pri
 
 ## Notes
 
-- 57 tasks: 5 setup, 9 foundational, 12 for US1, 13 for US2, 4 for US3, 5 measurement,
+- 64 tasks (57 plus 7 for US5): 5 setup, 9 foundational, 12 for US1, 13 for US2, 4 for US3, 5 measurement,
   5 documentation, 4 optional for US4.
 - Four tasks are marked VERIFY and one is marked GATE.
 - Direct `curl` to the API is denied by the project permissions; live checks go through the

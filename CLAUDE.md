@@ -55,11 +55,13 @@ README.md, DESIGN.md (max. 2 pages), AI_WORKFLOW.md, benchmark script with resul
   `specs/001-nyc311-oltp-olap-benchmark/tasks.md`, on branch `001-nyc311-oltp-olap-benchmark`.
 - **Phase 2 (implementation): done.** T001–T053 complete. User Stories 1 to 3, the official
   measurement, and the documentation deliverables. Full profile (5,000,000 requests): OLAP
-  47x to 177x faster on all six queries (committed run; an earlier run gave 55x to 184x),
+  47x to 192x faster on all six queries (committed run; earlier runs gave 47x to 184x),
   significance threshold reached (6 of 6), every query equivalent on both models. Results committed in
-  `results/`. 182 tests pass. README.md, DESIGN.md, AI_WORKFLOW.md published.
-- **Next**: User Story 4 (T054–T057) is optional (transactional operations). Requires
-  human authorization.
+  `results/`. 233 Python tests pass. README.md, DESIGN.md, AI_WORKFLOW.md published.
+- **Phase 3 (extras): done.** User Story 4 (transactional operations), User Story 5 (schema vs
+  engine control models and a repeated grid in `results/experiments_full.md`), CI workflow,
+  dashboard architecture gaps closed (81 dashboard tests), and a documented independent
+  code review.
 - The test fixture is synthetic: the NYC Open Data terms page returned 404 and no explicit
   license was found, so no real rows are committed. The README attributes the data source.
 
