@@ -429,6 +429,161 @@ body {
   color: var(--color-speedup);
 }
 
+/* ── Borough map ──────────────────────────────────────────────────── */
+.borough-map-prompt {
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.borough-map-prompt-inner {
+  max-width: 440px;
+  text-align: center;
+}
+
+.map-key-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  outline: none;
+  min-width: 0;
+}
+
+.map-key-input:focus {
+  border-color: var(--color-olap);
+}
+
+.map-key-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--color-olap);
+  border-radius: 6px;
+  background: var(--color-olap);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.map-key-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.map-reset-key {
+  margin-top: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.map-reset-key:hover {
+  border-color: var(--color-olap);
+  color: var(--color-olap);
+}
+
+.borough-map-wrap {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.borough-map-canvas {
+  flex: 1;
+  height: 400px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  background: var(--color-surface-alt);
+}
+
+.borough-map-legend {
+  min-width: 160px;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+}
+
+.borough-map-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+
+.borough-map-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.borough-map-legend-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.borough-map-legend-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.borough-map-fallback-note {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+}
+
+.borough-map-fallback-note code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8em;
+  background: var(--color-code-bg);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.borough-map-error {
+  padding: 24px;
+  text-align: center;
+  color: #ef4444;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .borough-map-wrap {
+    flex-direction: column;
+  }
+  .borough-map-canvas {
+    height: 280px;
+  }
+  .borough-map-legend {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
 @media (max-width: 640px) {
   .dashboard-header h1 {
     font-size: 1.25rem;

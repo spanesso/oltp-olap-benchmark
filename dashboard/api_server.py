@@ -26,6 +26,7 @@ from pathlib import Path
 
 PORT = 8788
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+OLAP_PATH = PROJECT_ROOT / "data" / "olap.duckdb"
 
 
 def _results_path(profile: str) -> Path:
@@ -42,12 +43,33 @@ class Handler(BaseHTTPRequestHandler):
         self._cors(200)
         self.end_headers()
 
-    # ── Health check ─────────────────────────────────────────────────────
+    # ── Health check + borough stats ─────────────────────────────────────
     def do_GET(self):  # noqa: N802
         if self.path == "/api/benchmark/ping":
             self._json(200, {"status": "ok"})
+        elif self.path == "/api/borough-stats":
+            self._handle_borough_stats()
         else:
             self._json(404, {"error": "not found"})
+
+    def _handle_borough_stats(self) -> None:
+        if not OLAP_PATH.is_file():
+            self._json(503, {"error": "OLAP model not built yet — run make bench first"})
+            return
+        try:
+            import duckdb  # noqa: PLC0415
+            duck = duckdb.connect(str(OLAP_PATH), read_only=True)
+            rows = duck.execute(
+                "SELECT dl.borough, count(*) AS count "
+                "FROM fact_service_request f "
+                "JOIN dim_location dl ON f.location_key = dl.location_key "
+                "GROUP BY dl.borough "
+                "ORDER BY count DESC"
+            ).fetchall()
+            duck.close()
+            self._json(200, {"boroughs": [{"borough": r[0], "count": r[1]} for r in rows]})
+        except Exception as exc:
+            self._json(500, {"error": str(exc)})
 
     # ── Run benchmark ────────────────────────────────────────────────────
     def do_POST(self):  # noqa: N802

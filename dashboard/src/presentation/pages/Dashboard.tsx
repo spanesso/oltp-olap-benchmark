@@ -7,6 +7,10 @@ import { EnvironmentCard } from "@presentation/components/EnvironmentCard";
 import { PipelineDiagram } from "@presentation/components/PipelineDiagram";
 import { ExplainPanel } from "@presentation/components/ExplainPanel";
 import { LiveRunButton } from "@presentation/components/LiveRunButton";
+import { RunDistributionChart } from "@presentation/components/RunDistributionChart";
+import { AbsoluteTimingChart } from "@presentation/components/AbsoluteTimingChart";
+import { SpeedupRadarChart } from "@presentation/components/SpeedupRadarChart";
+import { BoroughMap } from "@presentation/components/BoroughMap";
 
 export function Dashboard() {
   const { data, loading, error, running, runError, triggerLiveRun } = useBenchmarkData();
@@ -71,6 +75,26 @@ export function Dashboard() {
       <section className="section">
         <h2 className="section-title">Detailed results</h2>
         <QueryTable data={chartData} />
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Absolute timing — median ms (linear scale)</h2>
+        <AbsoluteTimingChart queries={data.queries} />
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Run distribution — all 10 measured runs</h2>
+        <RunDistributionChart queries={data.queries} />
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Speedup coverage — radar view</h2>
+        <SpeedupRadarChart queries={data.queries} />
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">NYC complaint geography — by borough</h2>
+        <BoroughMap />
       </section>
 
       <section className="section">
