@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import { renderWithI18n } from "../utils";
 import { QueryTable } from "../../src/presentation/components/QueryTable";
 
 const data = [
@@ -9,27 +10,33 @@ const data = [
 
 describe("QueryTable", () => {
   it("renders all rows", () => {
-    render(<QueryTable data={data} />);
+    renderWithI18n(<QueryTable data={data} />);
     expect(screen.getByText("q1")).toBeInTheDocument();
     expect(screen.getByText("q2")).toBeInTheDocument();
   });
 
   it("shows speedup badges", () => {
-    render(<QueryTable data={data} />);
+    renderWithI18n(<QueryTable data={data} />);
     expect(screen.getByText("80.0x")).toBeInTheDocument();
     expect(screen.getByText("60.0x")).toBeInTheDocument();
   });
 
   it("renders table headers", () => {
-    render(<QueryTable data={data} />);
+    renderWithI18n(<QueryTable data={data} />);
     expect(screen.getByText("Query")).toBeInTheDocument();
     expect(screen.getByText("OLTP (ms)")).toBeInTheDocument();
     expect(screen.getByText("OLAP (ms)")).toBeInTheDocument();
     expect(screen.getByText("Speedup")).toBeInTheDocument();
   });
 
+  it("translates the headers when the language is Spanish", () => {
+    renderWithI18n(<QueryTable data={data} />, "es");
+    expect(screen.getByText("Pregunta")).toBeInTheDocument();
+    expect(screen.queryByText("Question")).not.toBeInTheDocument();
+  });
+
   it("renders empty for no data", () => {
-    render(<QueryTable data={[]} />);
+    renderWithI18n(<QueryTable data={[]} />);
     const rows = screen.queryAllByRole("row");
     expect(rows).toHaveLength(1); // header only
   });
