@@ -38,6 +38,9 @@ export const es: Record<TKey, string> = {
   intro_why_dims_label: "Dimensiones",
   intro_why_api_label: "API",
   intro_why_time_label: "Rango temporal",
+  intro_api_endpoint: "Endpoint y parámetros de la API",
+  intro_api_pagination: "Paginación keyset: cada página pasa el último (created_date, unique_key) como cursor — seguro de reanudar si se interrumpe.",
+  intro_json_example: "Ejemplo de registro crudo (una fila de la API)",
 
   // ── API columns table ────────────────────────────────────────────────────
   api_columns_title: "12 columnas que descargamos de la API",

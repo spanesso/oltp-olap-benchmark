@@ -36,6 +36,9 @@ export const en = {
   intro_why_dims_label: "Dimensions",
   intro_why_api_label: "API",
   intro_why_time_label: "Time range",
+  intro_api_endpoint: "API endpoint & parameters",
+  intro_api_pagination: "Keyset pagination: each page passes the last (created_date, unique_key) as cursor — safe to resume after interruption.",
+  intro_json_example: "Example raw record (one row from the API)",
 
   // ── API columns table ────────────────────────────────────────────────────
   api_columns_title: "12 columns downloaded from the API",

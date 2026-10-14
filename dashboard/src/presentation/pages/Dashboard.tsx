@@ -100,6 +100,63 @@ export function Dashboard() {
               </div>
             ))}
           </div>
+
+          {/* ── API URL + params ── */}
+          <div style={{ marginTop: 24 }}>
+            <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+              {t("intro_api_endpoint")}
+            </div>
+            <pre style={{
+              background: "var(--color-surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              padding: "14px 16px",
+              fontSize: "0.78rem",
+              overflowX: "auto",
+              lineHeight: 1.7,
+              margin: 0,
+            }}>{`GET https://data.cityofnewyork.us/resource/erm2-nwe9.json
+  ?$select=unique_key,created_date,closed_date,agency,agency_name,
+           complaint_type,descriptor,borough,incident_zip,
+           community_board,open_data_channel_type,status
+  &$where=created_date >= '2024-01-01' AND created_date < '2026-01-01'
+  &$order=created_date, unique_key
+  &$limit=50000
+X-App-Token: <SOCRATA_APP_TOKEN>`}</pre>
+            <p style={{ fontSize: "0.8rem", marginTop: 8, color: "var(--color-text-secondary)" }}>
+              {t("intro_api_pagination")}
+            </p>
+          </div>
+
+          {/* ── JSON record example ── */}
+          <div style={{ marginTop: 20 }}>
+            <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+              {t("intro_json_example")}
+            </div>
+            <pre style={{
+              background: "var(--color-surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              padding: "14px 16px",
+              fontSize: "0.78rem",
+              overflowX: "auto",
+              lineHeight: 1.7,
+              margin: 0,
+            }}>{`{
+  "unique_key":             "62458321",
+  "created_date":           "2024-03-15T10:30:00.000",
+  "closed_date":            "2024-03-17T14:00:00.000",
+  "agency":                 "NYPD",
+  "agency_name":            "New York City Police Dept",
+  "complaint_type":         "Noise - Residential",
+  "descriptor":             "Loud Music/Party",
+  "borough":                "BROOKLYN",
+  "incident_zip":           "11201",
+  "community_board":        "01 BROOKLYN",
+  "open_data_channel_type": "PHONE",
+  "status":                 "Closed"
+}`}</pre>
+          </div>
         </div>
       </section>
 
