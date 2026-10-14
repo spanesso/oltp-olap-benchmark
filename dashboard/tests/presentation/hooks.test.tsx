@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useBenchmarkData } from "../../src/presentation/hooks/useBenchmarkData";
 import { useBoroughStats } from "../../src/presentation/hooks/useBoroughStats";
+import { useExperiments } from "../../src/presentation/hooks/useExperiments";
 import { FALLBACK_BOROUGH_STATS } from "../../src/domain/entities/BoroughStat";
 import * as repository from "../../src/infrastructure/repositories/BenchmarkRepository";
 
@@ -69,5 +70,21 @@ describe("useBoroughStats", () => {
     const { result } = renderHook(() => useBoroughStats());
     await waitFor(() => expect(result.current.stats).toEqual(FALLBACK_BOROUGH_STATS));
     expect(result.current.usingFallback).toBe(true);
+  });
+});
+
+describe("useExperiments", () => {
+  it("returns the report when it exists", async () => {
+    const report = { queries: [] } as never;
+    mocked.fetchExperiments.mockResolvedValue(report);
+    const { result } = renderHook(() => useExperiments());
+    await waitFor(() => expect(result.current).toBe(report));
+  });
+
+  it("stays null when there is no report or loading fails", async () => {
+    mocked.fetchExperiments.mockRejectedValue(new Error("offline"));
+    const { result } = renderHook(() => useExperiments());
+    await waitFor(() => expect(mocked.fetchExperiments).toHaveBeenCalled());
+    expect(result.current).toBeNull();
   });
 });

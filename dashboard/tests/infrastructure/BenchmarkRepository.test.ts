@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   fetchBenchmarkResults,
   fetchBoroughStats,
+  fetchExperiments,
   runLiveBenchmark,
 } from "../../src/infrastructure/repositories/BenchmarkRepository";
 
@@ -76,5 +77,27 @@ describe("fetchBoroughStats", () => {
   it("throws when the server is not ready", async () => {
     mockFetch({ ok: false, status: 503, json: async () => ({}) });
     await expect(fetchBoroughStats()).rejects.toThrow("503");
+  });
+});
+
+describe("fetchExperiments", () => {
+  it("returns the report when the file exists", async () => {
+    mockFetch({ json: async () => ({ queries: [], cells: [] }) });
+    expect(await fetchExperiments()).toEqual({ queries: [], cells: [] });
+  });
+
+  it("returns null when the file is missing", async () => {
+    mockFetch({ ok: false, status: 404, json: async () => ({}) });
+    expect(await fetchExperiments()).toBeNull();
+  });
+
+  it("returns null when the server answers with something that is not a report", async () => {
+    mockFetch({ json: async () => ({ title: "index.html fallback" }) });
+    expect(await fetchExperiments()).toBeNull();
+  });
+
+  it("throws on other failures", async () => {
+    mockFetch({ ok: false, status: 500, json: async () => ({}) });
+    await expect(fetchExperiments()).rejects.toThrow("500");
   });
 });

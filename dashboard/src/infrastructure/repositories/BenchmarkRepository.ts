@@ -1,4 +1,5 @@
 import type { BenchmarkResult } from "../../domain/entities/BenchmarkResult";
+import type { ExperimentsReport } from "../../domain/entities/Experiments";
 import type { BoroughStat } from "../../domain/entities/BoroughStat";
 
 const API_BASE = "http://localhost:8788";
@@ -18,6 +19,19 @@ export async function fetchBenchmarkResults(): Promise<BenchmarkResult> {
     throw new Error(`Failed to load benchmark results: ${response.status}`);
   }
   return response.json();
+}
+
+// The experiments file is optional: it only exists after `benchmark.py experiments` ran
+// and was copied to public/. A missing file is not an error, the section is just hidden.
+export async function fetchExperiments(): Promise<ExperimentsReport | null> {
+  const response = await fetch("/experiments_full.json");
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Failed to load experiments: ${response.status}`);
+  }
+  const body = await response.json();
+  // Vite answers unknown paths with index.html; treat anything that is not our report as absent.
+  return body && Array.isArray(body.queries) ? (body as ExperimentsReport) : null;
 }
 
 export async function runLiveBenchmark(

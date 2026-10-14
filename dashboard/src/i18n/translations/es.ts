@@ -123,6 +123,26 @@ export const es: Record<TKey, string> = {
   map_complaints: "Quejas",
   map_approximate: "aproximado — corre el servidor API para datos en vivo",
 
+  // ── Transactional operations ─────────────────────────────────────────────
+  tx_title: "Operaciones transaccionales",
+  tx_intro: "El otro lado del trade-off: leer una solicitud por su identificador y registrar una nueva. No cuentan para el veredicto de significancia.",
+  tx_col_operation: "Operación",
+  tx_col_winner: "Ganador",
+  tx_winner_oltp: "Gana OLTP",
+  tx_winner_olap: "Gana OLAP",
+
+  // ── Schema vs engine experiments ─────────────────────────────────────────
+  section_experiments: "¿Qué explica el speedup: el esquema o el motor?",
+  experiments_intro: "La comparación oficial cambia dos cosas a la vez: el modelo de datos (normalizado vs estrella) y el motor (PostgreSQL por filas vs DuckDB columnar). Para separarlos, las mismas queries se corrieron también sobre el esquema estrella dentro de PostgreSQL y sobre el esquema normalizado dentro de DuckDB. Todos los modelos devuelven exactamente las mismas filas y toda la grilla se midió varias veces.",
+  experiments_effects_title: "Cuántas veces más rápida deja la query cada factor",
+  experiments_times_title: "Tiempo mediano por modelo (ms)",
+  experiments_col_engine_normalized: "Motor (normalizado)",
+  experiments_col_engine_star: "Motor (estrella)",
+  experiments_col_schema_postgres: "Esquema (PostgreSQL)",
+  experiments_col_schema_duckdb: "Esquema (DuckDB)",
+  experiments_col_combined: "Combinado (oficial)",
+  experiments_repeatability: "{within} de {series} series se mantuvieron dentro de {limit}% a lo largo de {repeats} repeticiones; la mayor dispersión fue {worst}%. La máquina no estaba en reposo, por eso los tiempos absolutos varían; lo importante son las razones.",
+
   // ── Explain panel ────────────────────────────────────────────────────────
   explain_select_placeholder: "Selecciona una query",
   explain_empty: "Selecciona una query arriba para ver los planes de ejecución.",

@@ -121,6 +121,26 @@ export const en = {
   map_complaints: "Complaints",
   map_approximate: "approximate — run API server for live data",
 
+  // ── Transactional operations ─────────────────────────────────────────────
+  tx_title: "Transactional operations",
+  tx_intro: "The other side of the trade-off: reading one request by its identifier and registering a new one. These are not part of the significance verdict.",
+  tx_col_operation: "Operation",
+  tx_col_winner: "Winner",
+  tx_winner_oltp: "OLTP wins",
+  tx_winner_olap: "OLAP wins",
+
+  // ── Schema vs engine experiments ─────────────────────────────────────────
+  section_experiments: "What explains the speedup: schema or engine?",
+  experiments_intro: "The official comparison changes two things at once: the data model (normalized vs star schema) and the engine (PostgreSQL row store vs DuckDB column store). To separate them, the same queries were also run on the star schema inside PostgreSQL and on the normalized schema inside DuckDB. Every model returns exactly the same rows, and the whole grid was measured several times.",
+  experiments_effects_title: "How many times faster each factor makes the query",
+  experiments_times_title: "Median time per model (ms)",
+  experiments_col_engine_normalized: "Engine (normalized)",
+  experiments_col_engine_star: "Engine (star)",
+  experiments_col_schema_postgres: "Schema (PostgreSQL)",
+  experiments_col_schema_duckdb: "Schema (DuckDB)",
+  experiments_col_combined: "Combined (official)",
+  experiments_repeatability: "{within} of {series} series stayed within {limit}% across {repeats} repetitions; the widest spread was {worst}%. Machine not idle, so absolute times vary; the ratios are what matters.",
+
   // ── Explain panel ────────────────────────────────────────────────────────
   explain_select_placeholder: "Select a query",
   explain_empty: "Select a query above to see the execution plans.",

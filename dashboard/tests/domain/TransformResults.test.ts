@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
+  analyticalQueries,
   getChartData,
   getStatsSummary,
   formatMs,
+  transactionalQueries,
 } from "../../src/domain/usecases/TransformResults";
 import type {
   BenchmarkResult,
@@ -133,5 +135,28 @@ describe("formatMs", () => {
 
   it("handles zero", () => {
     expect(formatMs(0)).toContain("0");
+  });
+});
+
+describe("transactional operations", () => {
+  const lookup: QueryResult = {
+    ...makeQuery("t1_lookup_by_id", 0.5, 4),
+    group: "transactional",
+  };
+  const mixed = [...mockResult.queries, lookup];
+
+  it("splits the queries by group", () => {
+    expect(analyticalQueries(mixed)).toHaveLength(2);
+    expect(transactionalQueries(mixed)).toEqual([lookup]);
+  });
+
+  it("keeps transactional operations out of the chart data", () => {
+    expect(getChartData(mixed).map((row) => row.label)).toEqual(["q1", "q2"]);
+  });
+
+  it("does not let a transactional speedup below 1 distort the summary", () => {
+    const summary = getStatsSummary({ ...mockResult, queries: mixed });
+    expect(summary.totalQueries).toBe(2);
+    expect(summary.minSpeedup).toBe(60);
   });
 });

@@ -17,8 +17,18 @@ export interface StatsSummary {
   significanceReached: boolean;
 }
 
+export const ANALYTICAL = "analytical";
+
+export function analyticalQueries(queries: QueryResult[]): QueryResult[] {
+  return queries.filter((q) => q.group === ANALYTICAL);
+}
+
+export function transactionalQueries(queries: QueryResult[]): QueryResult[] {
+  return queries.filter((q) => q.group !== ANALYTICAL);
+}
+
 export function getChartData(queries: QueryResult[]): ChartDatum[] {
-  return queries.map((q) => ({
+  return analyticalQueries(queries).map((q) => ({
     label: q.id.split("_")[0],
     question: q.question,
     oltp: q.oltp.median_ms,
@@ -28,10 +38,11 @@ export function getChartData(queries: QueryResult[]): ChartDatum[] {
 }
 
 export function getStatsSummary(result: BenchmarkResult): StatsSummary {
-  const speedups = result.queries.map((q) => q.speedup);
+  const analytical = analyticalQueries(result.queries);
+  const speedups = analytical.map((q) => q.speedup);
   const sum = speedups.reduce((a, b) => a + b, 0);
   return {
-    totalQueries: result.queries.length,
+    totalQueries: analytical.length,
     dataVolume: result.dataset.rows,
     minSpeedup: Math.min(...speedups),
     maxSpeedup: Math.max(...speedups),
@@ -41,8 +52,5 @@ export function getStatsSummary(result: BenchmarkResult): StatsSummary {
 }
 
 export function formatMs(ms: number): string {
-  if (ms >= 1000) {
-    return `${ms.toLocaleString("en-US", { maximumFractionDigits: 1 })} ms`;
-  }
   return `${ms.toLocaleString("en-US", { maximumFractionDigits: 1 })} ms`;
 }

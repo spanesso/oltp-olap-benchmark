@@ -613,3 +613,28 @@ body {
     font-size: 1rem;
   }
 }
+
+/* ── Experiments and transactional sections ── */
+.experiments-intro {
+  max-width: 780px;
+  margin: 0 0 16px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.experiments-subtitle {
+  margin: 20px 0 8px;
+  font-size: 0.95rem;
+}
+
+.experiments-range {
+  margin-top: 2px;
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.experiments-note {
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}

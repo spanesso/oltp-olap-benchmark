@@ -1,5 +1,10 @@
 import { useBenchmarkData } from "@presentation/hooks/useBenchmarkData";
-import { getChartData, getStatsSummary } from "@domain/usecases/TransformResults";
+import {
+  getChartData,
+  getStatsSummary,
+  transactionalQueries,
+} from "@domain/usecases/TransformResults";
+import { useExperiments } from "@presentation/hooks/useExperiments";
 import { StatTile } from "@presentation/components/StatTile";
 import { SpeedupChart } from "@presentation/components/SpeedupChart";
 import { QueryTable } from "@presentation/components/QueryTable";
@@ -11,6 +16,8 @@ import { AbsoluteTimingChart } from "@presentation/components/AbsoluteTimingChar
 import { SpeedupRadarChart } from "@presentation/components/SpeedupRadarChart";
 import { BoroughMap } from "@presentation/components/BoroughMap";
 import { SchemaViewer } from "@presentation/components/SchemaViewer";
+import { ExperimentsPanel } from "@presentation/components/ExperimentsPanel";
+import { TransactionalTable } from "@presentation/components/TransactionalTable";
 import { ApiColumnsTable } from "@presentation/components/ApiColumnsTable";
 import { LanguageToggle } from "@presentation/components/LanguageToggle";
 import { useI18n } from "@/i18n";
@@ -25,6 +32,7 @@ const WHY_ITEMS = [
 export function Dashboard() {
   const { data, loading, error, running, runError, triggerLiveRun } = useBenchmarkData();
   const { t } = useI18n();
+  const experiments = useExperiments();
 
   if (loading) {
     return <div className="loading">Loading benchmark results&hellip;</div>;
@@ -36,6 +44,7 @@ export function Dashboard() {
 
   const chartData = getChartData(data.queries);
   const stats = getStatsSummary(data);
+  const transactional = transactionalQueries(data.queries);
 
   return (
     <div className="dashboard">
@@ -189,6 +198,22 @@ X-App-Token: <SOCRATA_APP_TOKEN>`}</pre>
         <h2 className="section-title">{t("section_results")}</h2>
         <QueryTable data={chartData} />
       </section>
+
+      {/* ── Transactional operations (only when they were measured) ── */}
+      {transactional.length > 0 && (
+        <section className="section">
+          <h2 className="section-title">{t("tx_title")}</h2>
+          <TransactionalTable operations={transactional} />
+        </section>
+      )}
+
+      {/* ── Schema vs engine experiments (only when the experiments ran) ── */}
+      {experiments && (
+        <section className="section">
+          <h2 className="section-title">{t("section_experiments")}</h2>
+          <ExperimentsPanel report={experiments} />
+        </section>
+      )}
 
       {/* ── 7. Absolute timing ── */}
       <section className="section">
