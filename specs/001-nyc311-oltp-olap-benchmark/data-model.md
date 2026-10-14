@@ -118,6 +118,21 @@ dim_status ◀───┘
 - The spec lists five dimensions; `dim_status` is added because status is a filter in the
   queries and it costs one small table.
 
+## 3b. Control models (schema versus engine experiments, FR-027)
+
+Built by `python benchmark.py experiments` from the OLTP tables; never part of the official
+results.
+
+- **`star_pg`** (PostgreSQL schema): the same seven tables and columns as section 3, with
+  `smallint` instead of `tinyint`, a primary key on every table (`request_id` on the fact
+  table) and one index per fact foreign key plus `created_at`.
+- **`control_3nf.duckdb`** (DuckDB file, schema `oltp`): a copy of the eight normalized tables of
+  section 2, without indexes. `service_request` is stored in creation order, as the star fact
+  table is.
+
+Both hold exactly the rows of the OLTP model; the experiments verify this by comparing the
+result of every query across the four models before measuring.
+
 ## 4. Parity invariants (checked by integration tests, FR-021)
 
 1. `count(oltp.service_request) = count(fact_service_request)` = the profile's target

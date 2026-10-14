@@ -214,6 +214,14 @@ being measured; the findings below are the ones that changed something.
     analytical measurements now use a read-only handle; a writable one opens only for the T2
     insert, which is always rolled back.
 
+24. **Implemented without updating the plan**: User Story 5 was added to the spec and tasks
+    and then built, but `plan.md` was never updated, which the constitution forbids (plan
+    gate and "complexity must be justified in the plan"). `/speckit-analyze` flagged it as
+    its highest finding. The plan, data model, CLI contract and quickstart were updated
+    afterwards, and the plan says openly that the section was written after the fact. The
+    same analysis showed that SC-006 (medians within 20%) is not met on the reference
+    laptop; the spec now records that status instead of the number being relaxed.
+
 Not changed on purpose: T2 is measured inside a rolled-back transaction, so it leaves out the
 commit. The review flagged it; the limitation is stated in the query text, README and DESIGN
 instead of being hidden.
@@ -226,11 +234,11 @@ The SDD framework and the Claude Code harness provided the structure that made t
 possible: the constitution prevented the agent from chasing a significance threshold, the
 spec kept the scope bounded, and the hooks enforced commit hygiene automatically.
 
-The 23 corrections cluster in four areas: **harness configuration** (7), where the agent did
+The 24 corrections cluster in four areas: **harness configuration** (7), where the agent did
 not know how Claude Code itself works; **realism checks** (4), where the human caught
 assumptions that would have been misleading or fragile; the **dashboard** (4), where visual
 output had to be inspected by a person; and **measurement validity** (6), found by the
-independent review and by comparing runs. The other two (commit granularity and silent
+independent review and by comparing runs, and **process** (1), found by `/speckit-analyze`. The other two (commit granularity and silent
 failure) were caught by the automated `/speckit-analyze` step.
 
 The measurement-validity group is the one to learn from: none of those mistakes produced a

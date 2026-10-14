@@ -210,7 +210,8 @@ repetitions.
   configuration modified in order to reach it.
 - **FR-020**: The benchmark MAY include a separate group of transactional operations (reading
   one request by identifier and inserting one request), reported apart from the analytical
-  queries.
+  queries. The insert runs inside a transaction that is rolled back, so it does not measure
+  the commit.
 
 - **FR-027**: The experiments MUST measure the four combinations of schema (normalized,
   star) and engine (PostgreSQL, DuckDB), built from the same OLTP data, and MUST NOT change
@@ -270,7 +271,11 @@ repetitions.
 - **SC-005**: Relaunching a completed load leaves the number of requests unchanged (0
   duplicates) in both models.
 - **SC-006**: Two consecutive benchmark runs on the same data give medians that differ by
-  less than 20% per query and model.
+  less than 20% per query and model, on a machine that is not running other software.
+  *Status*: not met on the reference laptop, which kept other applications open. In the
+  experiments run, 16 of 24 series stayed within 20% and the widest spread was 82% on a
+  few-millisecond DuckDB query; the data was left as measured and the figures are in
+  `results/experiments_full.md`.
 - **SC-007**: The results report lets a reader identify in under 1 minute which model wins
   each query and by how much.
 - **SC-008**: With the quick profile (200,000 requests), an evaluator completes load,
@@ -287,6 +292,9 @@ repetitions.
 - The benchmark runs on a single machine, with no concurrent users; concurrency is out of
   scope.
 - Timings are measured end to end from the client, including full retrieval of the result.
+- Extras added after the first official run, outside the original scope: a React dashboard,
+  a CI workflow and the schema-versus-engine experiments (User Story 5). They read the
+  results; they do not change how the official numbers are produced.
 - The exact names and availability of the source fields are confirmed against the API during
   the planning phase.
 - The data usage license is verified during the planning phase and cited in the README.

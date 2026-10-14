@@ -49,3 +49,5 @@ Expected: download and load of 5,000,000 requests in under 1 hour, then
 | Parity guard (FR-018) | delete one row from the OLAP fact table, run `run` | exit code 4, nothing measured |
 | Equivalence (FR-022, SC-004) | `pytest tests/integration` | every query returns the same rows on both models |
 | Repeatability (SC-006) | run `python benchmark.py run --profile full` twice | medians differ by less than 20% per query and model |
+| Transactional operations (FR-020) | `python benchmark.py run --profile full --include-transactional` | a separate section with the lookup and the rolled-back insert; the verdict is unchanged |
+| Schema versus engine (FR-027, FR-028) | `python benchmark.py experiments --profile full` | `results/experiments_full.md` with the four models, the effect of each factor and the repeatability count |

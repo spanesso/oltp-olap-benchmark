@@ -22,14 +22,16 @@ python benchmark.py load  --profile {quick|full} [--page-size N]
 python benchmark.py build --profile {quick|full}
 python benchmark.py run   --profile {quick|full} [--warmup N] [--repetitions N]
                           [--include-transactional]
-python benchmark.py all   --profile {quick|full}
+python benchmark.py experiments --profile {quick|full} [--repeats N] [--warmup N] [--repetitions N]
+python benchmark.py all   --profile {quick|full} [--include-transactional]
 ```
 
 | Command | Does | Requirements |
 |---|---|---|
 | `load` | Downloads the cut from the API into staging until the profile's target is staged. Resumes from the checkpoint; does nothing if the target is already staged. | FR-001 to FR-008 |
 | `build` | Rebuilds the OLTP model from the first N staged rows, then the OLAP model from the OLTP model. Runs `ANALYZE`. Prints row counts for both. | FR-009 to FR-012 |
-| `run` | Checks parity of row counts, measures every query on both models, writes the results files. | FR-013 to FR-019, FR-026 |
+| `run` | Checks parity of row counts, measures every query on both models, writes the results files. With `--include-transactional` it also measures T1 and T2; the analytical queries use a read-only handle on the OLAP file and only T2 opens it for writing (every insert is rolled back). | FR-013 to FR-019, FR-026 |
+| `experiments` | Rebuilds the two control models, verifies that the four models return the same rows, measures the grid `--repeats` times (default 3, minimum 2) and writes `results/experiments_<profile>.json` and `.md`. Does not change `benchmark_<profile>.*`. | FR-027, FR-028 |
 | `all` | `load`, then `build`, then `run`. | |
 
 Defaults: `--profile quick`, `--page-size 50000`, `--warmup 1`, `--repetitions 10`.

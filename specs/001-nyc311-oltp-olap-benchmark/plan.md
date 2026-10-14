@@ -132,7 +132,46 @@ Order follows the spec's priorities; each stage is independently testable.
 5. **Measurement**: quick profile, then full profile; commit `results/`. If SC-003 is not
    reached, stop and report (principle II).
 6. **Documentation**: README, DESIGN (2 pages), AI_WORKFLOW; license check from research R8.
-7. **User Story 4 — transactional operations**: only if time remains.
+7. **User Story 4 — transactional operations**: done after the documentation phase, with
+   the human's authorization. Measured only with `--include-transactional`.
+8. **User Story 5 — schema versus engine** (added after the first official run, spec US5,
+   FR-027, FR-028): see the section below.
+
+## User Story 5 design (added after the first official run)
+
+**Why**: the official comparison changes the schema and the engine at once (DESIGN.md names
+this as its main limitation). Two control models complete a 2x2 grid:
+
+| | PostgreSQL | DuckDB |
+|---|---|---|
+| Normalized | official OLTP model | control: `control_3nf.duckdb`, schema `oltp` |
+| Star | control: schema `star_pg` | official OLAP model |
+
+- `sql/controls/star_pg/` builds the star schema inside PostgreSQL from the OLTP tables, with a
+  primary key on every table and an index per fact foreign key, like the normalized model.
+- `sql/controls/3nf_duckdb/` holds the six queries for the normalized schema in DuckDB's
+  dialect; `src/nyc311_bench/controls.py` copies the OLTP tables into a separate DuckDB file
+  (postgres extension, `COPY` fallback), storing the fact table in creation order like the
+  star fact table.
+- `src/nyc311_bench/experiments.py` and the `experiments` subcommand verify that the four
+  models return the same rows, measure the grid `--repeats` times (default 3) and write
+  `results/experiments_<profile>.json` and `.md`. The official `benchmark_*.json/md` files
+  are never touched.
+- The controls are rebuilt on every run (about 25 seconds), so a control can never be stale.
+
+**Constitution Check for this addition**: I (a spec section, FR-027/028 and tasks T058–T064
+exist; this plan section was written after the implementation, which `/speckit-analyze` flagged
+as finding C1); II (nothing is tuned, equivalence verified before measuring); III (same
+data, same logical queries, same harness); IV (unit and integration tests on the fixture); V
+(two additional SQL schemas and one module, justified below); VI (reports state method and
+repetitions); VII (no new API access).
+
+**Complexity Tracking**
+
+| Addition | Why it is needed | Simpler alternative rejected |
+|---|---|---|
+| Two control models and 12 dialect-specific query files | the only way to attribute the speedup to schema or engine | arguing it from first principles, which is not a measurement |
+| Repeated grid with a repeatability count | SC-006 could not be judged from single runs | quoting one run |
 
 ## Risks
 
