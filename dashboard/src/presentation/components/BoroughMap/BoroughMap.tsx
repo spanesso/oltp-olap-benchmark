@@ -93,11 +93,11 @@ export function BoroughMap() {
           ],
         });
 
-        const maxCount = Math.max(...boroughData.map((b) => b.count));
+        const knownBoroughs = boroughData.filter((s) => s.borough in CENTROIDS);
+        const maxCount = Math.max(...knownBoroughs.map((b) => b.count));
 
-        boroughData.forEach((stat, i) => {
+        knownBoroughs.forEach((stat, i) => {
           const pos = CENTROIDS[stat.borough];
-          if (!pos) return;
 
           // Circle radius proportional to complaint count (max ~18km² = r ~2400m)
           const radius = 800 + (stat.count / maxCount) * 9000;
@@ -209,13 +209,13 @@ export function BoroughMap() {
             <div style={{ fontSize: "0.72rem", fontWeight: 600, marginBottom: 8, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Complaints
             </div>
-            {[...boroughData]
+            {[...boroughData.filter((s) => s.borough in CENTROIDS)]
               .sort((a, b) => b.count - a.count)
               .map((s, i) => (
                 <div key={s.borough} className="borough-map-legend-row">
                   <span
                     className="borough-map-dot"
-                    style={{ background: BOROUGH_COLORS[boroughData.indexOf(s) % BOROUGH_COLORS.length] }}
+                    style={{ background: BOROUGH_COLORS[i % BOROUGH_COLORS.length] }}
                   />
                   <span className="borough-map-legend-name">{s.borough}</span>
                   <span className="borough-map-legend-count">
