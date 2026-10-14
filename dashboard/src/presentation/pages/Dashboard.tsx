@@ -10,6 +10,8 @@ import { LiveRunButton } from "@presentation/components/LiveRunButton";
 import { AbsoluteTimingChart } from "@presentation/components/AbsoluteTimingChart";
 import { SpeedupRadarChart } from "@presentation/components/SpeedupRadarChart";
 import { BoroughMap } from "@presentation/components/BoroughMap";
+import { SchemaViewer } from "@presentation/components/SchemaViewer";
+import { ApiColumnsTable } from "@presentation/components/ApiColumnsTable";
 
 export function Dashboard() {
   const { data, loading, error, running, runError, triggerLiveRun } = useBenchmarkData();
@@ -89,6 +91,16 @@ export function Dashboard() {
       <section className="section">
         <h2 className="section-title">NYC complaint geography — by borough</h2>
         <BoroughMap />
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Data model — schema diagrams</h2>
+        <SchemaViewer />
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">API source — 12 columns from NYC Open Data</h2>
+        <ApiColumnsTable />
       </section>
 
       <section className="section">
