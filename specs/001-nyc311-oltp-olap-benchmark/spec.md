@@ -109,6 +109,34 @@ check that the report presents them separately from the analytical ones.
 
 ---
 
+### User Story 5 - Separate the effect of the schema from the effect of the engine (Priority: P3)
+
+*Added after the first official run, when the combined schema-and-engine effect was
+identified as the main limitation of the comparison.*
+
+As an evaluator, I want to know how much of the speedup comes from the data model (normalized
+vs star schema) and how much from the storage engine (row store vs column store), and how
+stable the measurements are across repetitions.
+
+**Why this priority**: the challenge is fulfilled without it, but it answers the most
+obvious objection to the result ("you changed two things at once").
+
+**Independent Test**: run the experiments command and check that every combination of
+schema and engine returns the same rows and appears in the report, with the spread of the
+repetitions.
+
+**Acceptance Scenarios**:
+
+1. **Given** both models loaded, **When** the experiments run, **Then** the star schema is
+   also measured on PostgreSQL and the normalized schema on DuckDB.
+2. **Given** the four models, **When** a query is measured, **Then** it first returns the same
+   rows on all of them; otherwise nothing is measured.
+3. **Given** several repetitions, **When** the report is written, **Then** it shows the
+   median, the range and the coefficient of variation of each model, the effect of the engine
+   and of the schema, and how many series satisfy SC-006.
+
+---
+
 ### Edge Cases
 
 - Requests without a closing date (still open): they have no resolution time and must not
@@ -183,6 +211,13 @@ check that the report presents them separately from the analytical ones.
 - **FR-020**: The benchmark MAY include a separate group of transactional operations (reading
   one request by identifier and inserting one request), reported apart from the analytical
   queries.
+
+- **FR-027**: The experiments MUST measure the four combinations of schema (normalized,
+  star) and engine (PostgreSQL, DuckDB), built from the same OLTP data, and MUST NOT change
+  the official result files.
+- **FR-028**: Before measuring, the experiments MUST verify that all four models return the
+  same rows for every query, and MUST repeat the whole grid at least twice to report the
+  spread between repetitions.
 
 **Verification**
 
