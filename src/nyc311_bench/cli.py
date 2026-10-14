@@ -97,13 +97,37 @@ def build_parser() -> argparse.ArgumentParser:
             help=f"measured runs per query and model (default: {DEFAULT_MEASURED_RUNS})",
         )
 
+    def add_transactional(command: argparse.ArgumentParser) -> None:
+        command.add_argument(
+            "--include-transactional",
+            action="store_true",
+            help="also measure the transactional operations (lookup by id, insert), reported "
+            "apart from the analytical queries",
+        )
+
     run = commands.add_parser("run", help="measure every query on both models")
     add_profile(run)
     add_measurement(run)
+    add_transactional(run)
+
+    experiments = commands.add_parser(
+        "experiments",
+        help="measure the schema and engine grid several times (does not change the "
+        "benchmark_*.json/md result files)",
+    )
+    add_profile(experiments)
+    add_measurement(experiments)
+    experiments.add_argument(
+        "--repeats",
+        type=_at_least(2),
+        default=3,
+        help="times the whole grid is measured (default: 3)",
+    )
 
     everything = commands.add_parser("all", help="load, build and run")
     add_profile(everything)
     add_measurement(everything)
+    add_transactional(everything)
     everything.add_argument("--page-size", type=_page_size, default=DEFAULT_PAGE_SIZE)
     return parser
 
@@ -207,7 +231,7 @@ def command_build(args: argparse.Namespace, settings: Settings) -> int:
 
 def command_run(args: argparse.Namespace, settings: Settings) -> int:
     from nyc311_bench.db import connect_duckdb
-    from nyc311_bench.queries import QUERIES
+    from nyc311_bench.queries import QUERIES, TRANSACTIONAL_QUERIES
     from nyc311_bench.report import build_report, write_report
     from nyc311_bench.runner import (
         ParityError,
@@ -215,6 +239,7 @@ def command_run(args: argparse.Namespace, settings: Settings) -> int:
         dataset_info,
         environment_info,
         run_queries,
+        run_transactional,
     )
 
     profile = get_profile(args.profile)
@@ -249,6 +274,32 @@ def command_run(args: argparse.Namespace, settings: Settings) -> int:
         finally:
             duck.close()
 
+        if args.include_transactional:
+            # Analytical queries ran on a read-only handle. The T2 insert needs a writable one;
+            # it opens only now, and every insert is rolled back.
+            print("Measuring the transactional operations.")
+            writable = connect_duckdb(settings.olap_path)
+            try:
+                transactional = run_transactional(
+                    connection,
+                    writable,
+                    TRANSACTIONAL_QUERIES,
+                    warmup=args.warmup,
+                    repetitions=args.repetitions,
+                )
+            except ParityError as error:
+                return _fail(f"{error}. Nothing was written.", EXIT_PARITY)
+            finally:
+                writable.close()
+            report = build_report(
+                profile,
+                results + transactional,
+                dataset_info(connection),
+                report["environment"],
+                args.warmup,
+                args.repetitions,
+            )
+
     json_path, markdown_path = write_report(report, RESULTS_DIR)
     verdict = report["significance"]
     print(f"Results written to {json_path} and {markdown_path}.")
@@ -265,6 +316,67 @@ def command_run(args: argparse.Namespace, settings: Settings) -> int:
     return EXIT_OK
 
 
+def command_experiments(args: argparse.Namespace, settings: Settings) -> int:
+    from nyc311_bench import experiments
+    from nyc311_bench.controls import build_3nf_in_duckdb, build_star_in_postgres
+    from nyc311_bench.db import connect_duckdb
+    from nyc311_bench.queries import QUERIES
+    from nyc311_bench.runner import ParityError, check_parity, dataset_info, environment_info
+
+    profile = get_profile(args.profile)
+    normalized_path = settings.olap_path.with_name("control_3nf.duckdb")
+    if not settings.olap_path.is_file():
+        return _fail(
+            f"the OLAP model file {settings.olap_path} does not exist. "
+            f"Run `build --profile {profile.name}` first.",
+            EXIT_PARITY,
+        )
+
+    with _connect(settings) as connection:
+        duck = connect_duckdb(settings.olap_path, read_only=True)
+        try:
+            rows = check_parity(connection, duck, expected_rows=profile.target_rows)
+            print(f"Both models hold {rows:,} requests.")
+            # Rebuilt every time (about 25 s): a control model can never be stale, partial or
+            # built from other data than the OLTP model it is compared with.
+            print("Building the star schema in PostgreSQL ...")
+            build_star_in_postgres(connection)
+            print("Building the normalized schema in DuckDB ...")
+            build_3nf_in_duckdb(normalized_path, connection, settings.postgres_conninfo())
+
+            normalized = connect_duckdb(normalized_path, read_only=True)
+            try:
+                print(
+                    f"Measuring {len(QUERIES)} queries on 4 models, {args.repeats} repetitions "
+                    f"({args.warmup} warm-up, {args.repetitions} measured runs each)."
+                )
+                raw = experiments.run_grid(
+                    connection,
+                    duck,
+                    normalized,
+                    QUERIES,
+                    repeats=args.repeats,
+                    warmup=args.warmup,
+                    repetitions=args.repetitions,
+                )
+                report = experiments.build_report(
+                    profile,
+                    raw,
+                    dataset_info(connection),
+                    environment_info(connection, duck),
+                )
+            finally:
+                normalized.close()
+        except (ParityError, experiments.EquivalenceError) as error:
+            return _fail(f"{error}. Nothing was measured.", EXIT_PARITY)
+        finally:
+            duck.close()
+
+    json_path, markdown_path = experiments.write_report(report, RESULTS_DIR)
+    print(f"Results written to {json_path} and {markdown_path}.")
+    return EXIT_OK
+
+
 def command_all(args: argparse.Namespace, settings: Settings) -> int:
     for command in (command_load, command_build, command_run):
         code = command(args, settings)
@@ -277,6 +389,7 @@ COMMANDS = {
     "load": command_load,
     "build": command_build,
     "run": command_run,
+    "experiments": command_experiments,
     "all": command_all,
 }
 

@@ -77,3 +77,17 @@ def test_speedup_is_oltp_median_over_olap_median():
     query = Query("q", ANALYTICAL, "question?")
     result = QueryResult(query, 1, summarize([300.0] * 10), summarize([100.0] * 10))
     assert result.speedup == 3.0
+
+
+def test_fill_replaces_every_token_with_an_integer():
+    from nyc311_bench.runner import fill
+
+    sql = "VALUES (@request_id@, @agency@, @agency@)"
+    assert fill(sql, {"request_id": 7, "agency": 3}) == "VALUES (7, 3, 3)"
+
+
+def test_fill_rejects_anything_that_is_not_an_integer():
+    from nyc311_bench.runner import fill
+
+    with pytest.raises(ValueError):
+        fill("WHERE id = @request_id@", {"request_id": "1; DROP TABLE x"})

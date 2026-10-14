@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from nyc311_bench.db import read_sql
 
 ANALYTICAL = "analytical"
+TRANSACTIONAL = "transactional"
 MODELS = ("oltp", "olap")
 
 
@@ -53,6 +54,23 @@ QUERIES: tuple[Query, ...] = (
         "q6_channel_share_by_quarter",
         ANALYTICAL,
         "How is each quarter's volume split across channels?",
+    ),
+)
+
+
+# Optional group (User Story 4): measured only with --include-transactional and never counted
+# in the significance verdict. They show the side of the trade-off where OLTP wins.
+TRANSACTIONAL_QUERIES: tuple[Query, ...] = (
+    Query(
+        "t1_lookup_by_id",
+        TRANSACTIONAL,
+        "Read one request by its identifier, with all its descriptive attributes.",
+    ),
+    Query(
+        "t2_insert_request",
+        TRANSACTIONAL,
+        "Register one new request (insert inside a transaction that is rolled back, so the "
+        "commit itself is not measured).",
     ),
 )
 

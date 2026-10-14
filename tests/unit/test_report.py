@@ -141,3 +141,19 @@ def test_write_report_creates_both_files(tmp_path):
     assert markdown_path.name == "benchmark_quick.md"
     assert json.loads(json_path.read_text()) == report
     assert markdown_path.read_text().startswith("# Benchmark results: quick profile")
+
+
+def test_transactional_operations_get_their_own_section_and_can_favor_oltp():
+    results = [result(i, 5.0) for i in range(1, 7)]
+    results.append(result(9, 0.02, group="transactional"))
+    report = build_report(FULL, results, DATASET, ENVIRONMENT, 1, 10)
+    text = render_markdown(report)
+    assert "## Transactional operations" in text
+    assert "Not counted in the verdict above." in text
+    assert "OLTP, 50.0x faster" in text
+    assert report["significance"]["analytical_queries"] == 6
+
+
+def test_no_transactional_section_when_the_group_was_not_measured():
+    text = render_markdown(report_for(FULL, [5.0] * 6))
+    assert "## Transactional operations" not in text

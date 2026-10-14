@@ -85,3 +85,20 @@ def test_measurement_defaults_match_the_spec():
 def test_all_stops_at_the_first_failing_step(capsys):
     assert cli.main(["all"], env={}) == cli.EXIT_USAGE
     assert "SOCRATA_APP_TOKEN" in capsys.readouterr().err
+
+
+def test_experiments_accepts_a_profile_and_repeats():
+    args = cli.build_parser().parse_args(["experiments", "--profile", "full", "--repeats", "4"])
+    assert (args.command, args.profile, args.repeats) == ("experiments", "full", 4)
+
+
+def test_experiments_needs_at_least_two_repeats():
+    with pytest.raises(SystemExit):
+        cli.build_parser().parse_args(["experiments", "--repeats", "1"])
+
+
+def test_include_transactional_is_available_on_run_and_all():
+    parser = cli.build_parser()
+    assert parser.parse_args(["run", "--include-transactional"]).include_transactional is True
+    assert parser.parse_args(["all", "--include-transactional"]).include_transactional is True
+    assert parser.parse_args(["run"]).include_transactional is False
