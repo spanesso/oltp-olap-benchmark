@@ -21,10 +21,19 @@ export const es: Record<TKey, string> = {
   stat_not_reached: "No alcanzada",
 
   // ── Live run ─────────────────────────────────────────────────────────────
-  run_btn: "Ejecutar benchmark",
-  run_running: "Ejecutando…",
-  run_hint: "Requiere servidor API (make api) y datos cargados.",
-  run_timeout_hint: "Corre el perfil completo (~5 min). Detener con Ctrl+C en el servidor API.",
+  live_btn: "Actualizar medición en vivo",
+  live_running: "Midiendo 6 queries × 2 motores…",
+  live_hint_idle: "Requiere: python dashboard/api_server.py · ~3 min",
+  live_hint_running: "Espera — esto puede tardar ~3 min con el perfil full",
+  live_error_connect: "No se pudo conectar al servidor. Ejecuta: python dashboard/api_server.py",
+
+  // ── Results table ────────────────────────────────────────────────────────
+  table_aria: "Resultados del benchmark por query",
+  table_col_query: "Query",
+  table_col_question: "Pregunta",
+  table_col_oltp: "OLTP (ms)",
+  table_col_olap: "OLAP (ms)",
+  table_col_speedup: "Speedup",
 
   // ── Dataset introduction ─────────────────────────────────────────────────
   intro_title: "¿Por qué NYC 311 Service Requests?",
@@ -33,7 +42,7 @@ export const es: Record<TKey, string> = {
   intro_why_volume: "5 millones de filas cargadas en menos de 1 hora — suficiente para diferencias de rendimiento de órdenes de magnitud.",
   intro_why_dims: "6 dimensiones analíticas naturales (tipo de queja, agencia, ubicación, tiempo, canal, estado) — ideales para las 6 queries OLAP.",
   intro_why_api: "Sin throttling con app token: hasta 50,000 filas por página, paginación keyset para reanudación fiable.",
-  intro_why_time: "Rango temporal 2020–2026 que habilita análisis por año / trimestre / mes en cada query.",
+  intro_why_time: "Rango temporal de varios años (cargamos el corte 2024–2026) que habilita análisis por año / trimestre / mes en cada query.",
   intro_why_volume_label: "Volumen",
   intro_why_dims_label: "Dimensiones",
   intro_why_api_label: "API",
@@ -105,6 +114,8 @@ export const es: Record<TKey, string> = {
   map_key_required: "Se requiere clave de Google Maps API",
   map_key_desc: "Pega tu clave para ver el mapa de quejas de NYC por borough. Se guarda solo en el localStorage de tu navegador.",
   map_key_placeholder: "AIzaSy...",
+  map_key_help: "Consigue una clave gratis en {link} — habilita la Maps JavaScript API.",
+  map_key_help_link: "Google Cloud Console",
   map_load_btn: "Cargar mapa",
   map_change_key: "Cambiar clave",
   map_error: "Error al cargar Google Maps:",

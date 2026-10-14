@@ -1,14 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-
-// Static fallback data — approximate distribution from the 5M-row full profile.
-// Used when the API server is not running.
-const STATIC_BOROUGH_DATA: BoroughStat[] = [
-  { borough: "BROOKLYN",     count: 1_280_000 },
-  { borough: "QUEENS",       count: 1_140_000 },
-  { borough: "MANHATTAN",    count: 850_000 },
-  { borough: "BRONX",        count: 670_000 },
-  { borough: "STATEN ISLAND",count: 210_000 },
-];
+import { useI18n } from "@/i18n";
+import { useBoroughStats } from "@presentation/hooks/useBoroughStats";
 
 const CENTROIDS: Record<string, { lat: number; lng: number }> = {
   "BROOKLYN":      { lat: 40.6782, lng: -73.9442 },
@@ -20,14 +12,12 @@ const CENTROIDS: Record<string, { lat: number; lng: number }> = {
 
 const NYC_CENTER = { lat: 40.7128, lng: -74.006 };
 
-interface BoroughStat {
-  borough: string;
-  count: number;
-}
-
+// The Google Maps script is loaded at runtime; its typings (@types/google.maps) are not
+// a project dependency, so the namespace is typed loosely on purpose.
 declare global {
   interface Window {
-    google: typeof google;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    google: any;
     _gmapsLoaded?: () => void;
   }
 }
@@ -58,23 +48,11 @@ export function BoroughMap() {
     try { return localStorage.getItem("gmaps_api_key") ?? ""; } catch { return ""; }
   });
   const [keyDraft, setKeyDraft] = useState(apiKey);
-  const [boroughData, setBoroughData] = useState<BoroughStat[] | null>(null);
-  const [usingFallback, setUsingFallback] = useState(false);
+  const { stats: boroughData, usingFallback } = useBoroughStats();
   const [mapError, setMapError] = useState<string | null>(null);
-
-  // Fetch borough stats from the API server (or fall back to static data)
-  useEffect(() => {
-    fetch("http://localhost:8788/api/borough-stats")
-      .then((r) => r.json())
-      .then((d: { boroughs: BoroughStat[] }) => {
-        setBoroughData(d.boroughs);
-        setUsingFallback(false);
-      })
-      .catch(() => {
-        setBoroughData(STATIC_BOROUGH_DATA);
-        setUsingFallback(true);
-      });
-  }, []);
+  const { t } = useI18n();
+  const complaintsText = t("map_complaints").toLowerCase();
+  const approximateText = t("map_approximate");
 
   // Initialize the map once we have a key and data
   useEffect(() => {
@@ -132,15 +110,15 @@ export function BoroughMap() {
           const infoContent = `
             <div style="font-family:system-ui;padding:8px 4px">
               <strong>${stat.borough}</strong><br/>
-              ${stat.count.toLocaleString()} complaints
-              ${usingFallback ? "<br/><em style='color:#888;font-size:11px'>approximate — run API server for live data</em>" : ""}
+              ${stat.count.toLocaleString()} ${complaintsText}
+              ${usingFallback ? `<br/><em style='color:#888;font-size:11px'>${approximateText}</em>` : ""}
             </div>`;
           const infoWindow = new window.google.maps.InfoWindow({ content: infoContent });
           circle.addListener("click", () => infoWindow.open({ map, anchor: label }));
         });
       })
       .catch((err: Error) => setMapError(err.message));
-  }, [apiKey, boroughData, usingFallback]);
+  }, [apiKey, boroughData, usingFallback, complaintsText, approximateText]);
 
   function saveKey() {
     const k = keyDraft.trim();
@@ -153,31 +131,30 @@ export function BoroughMap() {
       <div className="borough-map-prompt">
         <div className="borough-map-prompt-inner">
           <div style={{ fontSize: "2rem", marginBottom: 12 }}>🗺️</div>
-          <h3 style={{ margin: "0 0 8px", fontSize: "1rem" }}>Google Maps API Key required</h3>
+          <h3 style={{ margin: "0 0 8px", fontSize: "1rem" }}>{t("map_key_required")}</h3>
           <p style={{ fontSize: "0.85rem", color: "var(--color-text-secondary)", margin: "0 0 16px" }}>
-            Paste your key to see the NYC complaint map by borough. The key is stored only in
-            your browser's localStorage, never sent anywhere except to maps.googleapis.com.
+            {t("map_key_desc")}
           </p>
           <div style={{ display: "flex", gap: 8 }}>
             <input
               type="text"
-              placeholder="AIzaSy..."
+              placeholder={t("map_key_placeholder")}
               value={keyDraft}
               onChange={(e) => setKeyDraft(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && saveKey()}
               className="map-key-input"
             />
             <button className="map-key-btn" onClick={saveKey} disabled={!keyDraft.trim()}>
-              Load map
+              {t("map_load_btn")}
             </button>
           </div>
           <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", margin: "12px 0 0" }}>
-            Get a free key at{" "}
+            {t("map_key_help").split("{link}")[0]}
             <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer"
               style={{ color: "var(--color-olap)" }}>
-              Google Cloud Console
-            </a>{" "}
-            — enable the Maps JavaScript API.
+              {t("map_key_help_link")}
+            </a>
+            {t("map_key_help").split("{link}")[1]}
           </p>
         </div>
       </div>
@@ -187,9 +164,9 @@ export function BoroughMap() {
   if (mapError) {
     return (
       <div className="borough-map-error">
-        <p>Failed to load Google Maps: {mapError}</p>
+        <p>{t("map_error")} {mapError}</p>
         <button className="map-key-btn" onClick={() => { setApiKey(""); setKeyDraft(""); try { localStorage.removeItem("gmaps_api_key"); } catch { /* */ } }}>
-          Reset key
+          {t("map_reset_key")}
         </button>
       </div>
     );
@@ -199,7 +176,7 @@ export function BoroughMap() {
     <div>
       {usingFallback && (
         <p className="borough-map-fallback-note">
-          ℹ️ Showing approximate borough data. Run <code>make api</code> for live complaint counts from DuckDB.
+          ℹ️ {t("map_fallback_note")}
         </p>
       )}
       <div className="borough-map-wrap">
@@ -207,7 +184,7 @@ export function BoroughMap() {
         {boroughData && (
           <div className="borough-map-legend">
             <div style={{ fontSize: "0.72rem", fontWeight: 600, marginBottom: 8, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Complaints
+              {t("map_complaints")}
             </div>
             {[...boroughData.filter((s) => s.borough in CENTROIDS)]
               .sort((a, b) => b.count - a.count)
@@ -228,7 +205,7 @@ export function BoroughMap() {
                 className="map-reset-key"
                 onClick={() => { setApiKey(""); setKeyDraft(""); try { localStorage.removeItem("gmaps_api_key"); } catch { /* */ } }}
               >
-                Change key
+                {t("map_change_key")}
               </button>
             )}
           </div>

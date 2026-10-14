@@ -1,3 +1,5 @@
+import { useI18n } from "@/i18n";
+
 interface QueryRow {
   label: string;
   question: string;
@@ -11,16 +13,17 @@ interface Props {
 }
 
 export function QueryTable({ data }: Props) {
+  const { t } = useI18n();
   return (
     <div className="query-table-wrapper">
-      <table className="query-table" aria-label="Query benchmark results">
+      <table className="query-table" aria-label={t("table_aria")}>
         <thead>
           <tr>
-            <th>Query</th>
-            <th className="col-question">Question</th>
-            <th className="col-number">OLTP (ms)</th>
-            <th className="col-number">OLAP (ms)</th>
-            <th className="col-number">Speedup</th>
+            <th>{t("table_col_query")}</th>
+            <th className="col-question">{t("table_col_question")}</th>
+            <th className="col-number">{t("table_col_oltp")}</th>
+            <th className="col-number">{t("table_col_olap")}</th>
+            <th className="col-number">{t("table_col_speedup")}</th>
           </tr>
         </thead>
         <tbody>

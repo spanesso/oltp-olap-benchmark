@@ -1,19 +1,7 @@
-interface EnvironmentInfo {
-  os: string;
-  cpu: string;
-  cores: number;
-  memory_gb: number;
-  python: string;
-  postgresql: string;
-  postgresql_runtime: string;
-  postgresql_settings: Record<string, string>;
-  duckdb: string;
-  duckdb_runtime: string;
-  duckdb_settings: Record<string, string>;
-}
+import type { Environment } from "@domain/entities/BenchmarkResult";
 
 interface Props {
-  environment: EnvironmentInfo;
+  environment: Environment;
 }
 
 export function EnvironmentCard({ environment }: Props) {

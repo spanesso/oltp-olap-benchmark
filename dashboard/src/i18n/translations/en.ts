@@ -19,10 +19,19 @@ export const en = {
   stat_not_reached: "Not reached",
 
   // ── Live run ─────────────────────────────────────────────────────────────
-  run_btn: "Run benchmark",
-  run_running: "Running…",
-  run_hint: "Requires API server (make api) and loaded data.",
-  run_timeout_hint: "Runs full profile (~5 min). Stop via Ctrl+C in the API server.",
+  live_btn: "Refresh live measurement",
+  live_running: "Measuring 6 queries × 2 engines…",
+  live_hint_idle: "Requires: python dashboard/api_server.py · ~3 min",
+  live_hint_running: "Please wait — the full profile can take ~3 min",
+  live_error_connect: "Could not reach the server. Run: python dashboard/api_server.py",
+
+  // ── Results table ────────────────────────────────────────────────────────
+  table_aria: "Query benchmark results",
+  table_col_query: "Query",
+  table_col_question: "Question",
+  table_col_oltp: "OLTP (ms)",
+  table_col_olap: "OLAP (ms)",
+  table_col_speedup: "Speedup",
 
   // ── Dataset introduction ─────────────────────────────────────────────────
   intro_title: "Why NYC 311 Service Requests?",
@@ -31,7 +40,7 @@ export const en = {
   intro_why_volume: "5 million rows loaded in under 1 hour — large enough to show order-of-magnitude performance differences.",
   intro_why_dims: "6 natural analytical dimensions (complaint type, agency, location, time, channel, status) — ideal for the 6 OLAP queries.",
   intro_why_api: "No throttling with an app token: up to 50,000 rows per page, keyset pagination for reliable resumption.",
-  intro_why_time: "Rich 2020–2026 time range enabling year / quarter / month breakdowns in every query.",
+  intro_why_time: "Multi-year time range (we load the 2024–2026 cut) enabling year / quarter / month breakdowns in every query.",
   intro_why_volume_label: "Volume",
   intro_why_dims_label: "Dimensions",
   intro_why_api_label: "API",
@@ -103,6 +112,8 @@ export const en = {
   map_key_required: "Google Maps API Key required",
   map_key_desc: "Paste your key to see the NYC complaint map by borough. Stored only in your browser's localStorage.",
   map_key_placeholder: "AIzaSy...",
+  map_key_help: "Get a free key at {link} — enable the Maps JavaScript API.",
+  map_key_help_link: "Google Cloud Console",
   map_load_btn: "Load map",
   map_change_key: "Change key",
   map_error: "Failed to load Google Maps:",

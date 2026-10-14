@@ -1,6 +1,16 @@
 import type { BenchmarkResult } from "../../domain/entities/BenchmarkResult";
+import type { BoroughStat } from "../../domain/entities/BoroughStat";
 
 const API_BASE = "http://localhost:8788";
+
+export async function fetchBoroughStats(): Promise<BoroughStat[]> {
+  const response = await fetch(`${API_BASE}/api/borough-stats`);
+  if (!response.ok) {
+    throw new Error(`Failed to load borough stats: ${response.status}`);
+  }
+  const body = (await response.json()) as { boroughs: BoroughStat[] };
+  return body.boroughs;
+}
 
 export async function fetchBenchmarkResults(): Promise<BenchmarkResult> {
   const response = await fetch("/benchmark_full.json");
