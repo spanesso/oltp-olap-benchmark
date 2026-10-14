@@ -234,7 +234,7 @@ The SDD framework and the Claude Code harness provided the structure that made t
 possible: the constitution prevented the agent from chasing a significance threshold, the
 spec kept the scope bounded, and the hooks enforced commit hygiene automatically.
 
-The 24 corrections cluster in four areas: **harness configuration** (7), where the agent did
+The 24 corrections cluster in five areas: **harness configuration** (7), where the agent did
 not know how Claude Code itself works; **realism checks** (4), where the human caught
 assumptions that would have been misleading or fragile; the **dashboard** (4), where visual
 output had to be inspected by a person; and **measurement validity** (6), found by the
