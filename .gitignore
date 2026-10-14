@@ -24,6 +24,10 @@ data/
 # Graphify cache (graph.json, graph.html and GRAPH_REPORT.md are committed)
 graphify-out/cache/
 
+# Dashboard (built artifacts and deps)
+dashboard/node_modules/
+dashboard/dist/
+
 # OS / editors
 .DS_Store
 .idea/

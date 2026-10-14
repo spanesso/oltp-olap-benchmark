@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "profile": "quick",
+  "official": false,
+  "generated_at": "2026-10-13T00:47:07Z",
+  "dataset": {
+    "source": "NYC 311 Service Requests (erm2-nwe9)",
+    "cut_start": "2024-01-01T00:00:00",
+    "cut_end": "2026-01-01T00:00:00",
+    "rows": 200000,
+    "first_created_at": "2024-01-01T00:00:00",
+    "last_created_at": "2024-01-22T14:04:16"
+  },
+  "environment": {
+    "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "cores": 10,
+    "memory_gb": 16.0,
+    "python": "3.13.9",
+    "postgresql": "17.11 (Debian 17.11-1.pgdg13+2)",
+    "postgresql_runtime": "docker container, reached over local TCP",
+    "postgresql_settings": {
+      "max_parallel_workers_per_gather": "2",
+      "max_parallel_workers": "8",
+      "shared_buffers": "128MB",
+      "work_mem": "4MB",
+      "jit": "on"
+    },
+    "duckdb": "1.5.6",
+    "duckdb_runtime": "embedded in the benchmark process",
+    "duckdb_settings": {
+      "threads": "10",
+      "memory_limit": "12.7 GiB"
+    }
+  },
+  "method": {
+    "warmup_runs": 1,
+    "measured_runs": 10,
+    "timer": "perf_counter, execute + full fetch"
+  },
+  "queries": [
+    {
+      "id": "q1_volume_by_type_month_borough",
+      "group": "analytical",
+      "question": "How many requests of each complaint type were created per month in each borough?",
+      "result_rows": 704,
+      "oltp": {
+        "runs_ms": [
+          85.396,
+          84.866,
+          84.628,
+          85.211,
+          84.347,
+          84.697,
+          86.744,
+          86.35,
+          84.78,
+          87.645
+        ],
+        "median_ms": 85.039,
+        "p95_ms": 87.24,
+        "min_ms": 84.347,
+        "max_ms": 87.645
+      },
+      "olap": {
+        "runs_ms": [
+          8.085,
+          9.286,
+          6.556,
+          8.286,
+          7.383,
+          7.104,
+          6.55,
+          6.531,
+          6.035,
+          6.046
+        ],
+        "median_ms": 6.83,
+        "p95_ms": 8.836,
+        "min_ms": 6.035,
+        "max_ms": 9.286
+      },
+      "speedup": 12.45
+    },
+    {
+      "id": "q2_top_types_per_zip",
+      "group": "analytical",
+      "question": "For each ZIP code, which are the 10 most frequent complaint types and how long do they take to resolve on average?",
+      "result_rows": 1894,
+      "oltp": {
+        "runs_ms": [
+          121.443,
+          120.639,
+          126.497,
+          118.965,
+          121.191,
+          120.088,
+          119.283,
+          119.145,
+          120.182,
+          122.315
+        ],
+        "median_ms": 120.41,
+        "p95_ms": 124.615,
+        "min_ms": 118.965,
+        "max_ms": 126.497
+      },
+      "olap": {
+        "runs_ms": [
+          11.77,
+          10.628,
+          9.547,
+          9.282,
+          8.812,
+          8.847,
+          7.538,
+          7.852,
+          7.757,
+          7.588
+        ],
+        "median_ms": 8.83,
+        "p95_ms": 11.256,
+        "min_ms": 7.538,
+        "max_ms": 11.77
+      },
+      "speedup": 13.64
+    },
+    {
+      "id": "q3_closure_rate_agency_channel",
+      "group": "analytical",
+      "question": "What share of requests does each agency close within 30 days, by channel?",
+      "result_rows": 42,
+      "oltp": {
+        "runs_ms": [
+          33.661,
+          33.046,
+          31.966,
+          32.799,
+          32.141,
+          32.007,
+          31.818,
+          32.139,
+          31.539,
+          31.609
+        ],
+        "median_ms": 32.073,
+        "p95_ms": 33.384,
+        "min_ms": 31.539,
+        "max_ms": 33.661
+      },
+      "olap": {
+        "runs_ms": [
+          3.477,
+          3.198,
+          3.3,
+          3.42,
+          3.97,
+          4.505,
+          5.086,
+          4.778,
+          4.563,
+          3.951
+        ],
+        "median_ms": 3.961,
+        "p95_ms": 4.947,
+        "min_ms": 3.198,
+        "max_ms": 5.086
+      },
+      "speedup": 8.1
+    },
+    {
+      "id": "q4_resolution_p90_agency_quarter",
+      "group": "analytical",
+      "question": "What is the 90th percentile of resolution time per agency and quarter?",
+      "result_rows": 14,
+      "oltp": {
+        "runs_ms": [
+          194.551,
+          193.197,
+          194.341,
+          192.968,
+          193.167,
+          192.522,
+          191.761,
+          193.688,
+          193.68,
+          192.83
+        ],
+        "median_ms": 193.182,
+        "p95_ms": 194.456,
+        "min_ms": 191.761,
+        "max_ms": 194.551
+      },
+      "olap": {
+        "runs_ms": [
+          8.667,
+          8.602,
+          8.336,
+          7.599,
+          6.815,
+          6.76,
+          6.4,
+          5.884,
+          5.756,
+          5.54
+        ],
+        "median_ms": 6.787,
+        "p95_ms": 8.637,
+        "min_ms": 5.54,
+        "max_ms": 8.667
+      },
+      "speedup": 28.46
+    },
+    {
+      "id": "q5_noise_by_weekday_hour",
+      "group": "analytical",
+      "question": "In Brooklyn, when do noise complaints concentrate, by day of week and hour?",
+      "result_rows": 168,
+      "oltp": {
+        "runs_ms": [
+          8.732,
+          8.373,
+          7.84,
+          7.472,
+          7.542,
+          6.922,
+          6.947,
+          7.224,
+          7.265,
+          6.975
+        ],
+        "median_ms": 7.368,
+        "p95_ms": 8.571,
+        "min_ms": 6.922,
+        "max_ms": 8.732
+      },
+      "olap": {
+        "runs_ms": [
+          1.985,
+          2.064,
+          1.965,
+          1.76,
+          2.123,
+          2.043,
+          1.746,
+          1.97,
+          2.082,
+          2.135
+        ],
+        "median_ms": 2.014,
+        "p95_ms": 2.13,
+        "min_ms": 1.746,
+        "max_ms": 2.135
+      },
+      "speedup": 3.66
+    },
+    {
+      "id": "q6_channel_share_by_quarter",
+      "group": "analytical",
+      "question": "How is each quarter's volume split across channels?",
+      "result_rows": 5,
+      "oltp": {
+        "runs_ms": [
+          140.828,
+          140.014,
+          139.665,
+          139.741,
+          140.16,
+          136.24,
+          141.028,
+          137.258,
+          136.088,
+          136.748
+        ],
+        "median_ms": 139.703,
+        "p95_ms": 140.938,
+        "min_ms": 136.088,
+        "max_ms": 141.028
+      },
+      "olap": {
+        "runs_ms": [
+          3.401,
+          3.49,
+          5.595,
+          5.224,
+          3.822,
+          4.448,
+          4.696,
+          3.987,
+          4.383,
+          3.729
+        ],
+        "median_ms": 4.185,
+        "p95_ms": 5.428,
+        "min_ms": 3.401,
+        "max_ms": 5.595
+      },
+      "speedup": 33.38
+    }
+  ],
+  "significance": {
+    "evaluated": false,
+    "rule": "OLAP at least 3x faster on the median in at least two thirds of analytical queries",
+    "queries_meeting_3x": 6,
+    "analytical_queries": 6,
+    "reached": null
+  }
+}

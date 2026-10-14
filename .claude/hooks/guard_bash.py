@@ -24,8 +24,8 @@ def main() -> int:
 
     if BULK_ADD.search(command):
         print(
-            "Bloqueado: no uses `git add .` / `git add -A`. "
-            "Agrega archivos explícitamente para mantener commits atómicos.",
+            "Blocked: do not use `git add .` / `git add -A`. "
+            "Add files explicitly to keep commits atomic.",
             file=sys.stderr,
         )
         return 2
@@ -42,7 +42,7 @@ def main() -> int:
             result = subprocess.run(args, cwd=root, capture_output=True, text=True)
             if result.returncode != 0:
                 print(
-                    f"Commit bloqueado: `{' '.join(args)}` falló.\n"
+                    f"Commit blocked: `{' '.join(args)}` failed.\n"
                     f"{result.stdout}{result.stderr}",
                     file=sys.stderr,
                 )
