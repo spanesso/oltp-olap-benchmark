@@ -61,8 +61,8 @@ function makePath(t1: Tbl, rel: Rel, t2: Tbl): string {
   const dx = Math.abs(x2 - x1);
   const dy = Math.abs(y2 - y1);
 
+  // Same-side loops
   if (rel.fromSide === "right" && rel.toSide === "right") {
-    // Both right edges: go right then loop
     const ox = Math.max(x1, x2) + 60;
     return `M ${x1},${y1} C ${ox},${y1} ${ox},${y2} ${x2},${y2}`;
   }
@@ -70,16 +70,27 @@ function makePath(t1: Tbl, rel: Rel, t2: Tbl): string {
     const ox = Math.min(x1, x2) - 60;
     return `M ${x1},${y1} C ${ox},${y1} ${ox},${y2} ${x2},${y2}`;
   }
-  if (rel.fromSide === "bottom" && rel.toSide === "top") {
-    const cp = dy * 0.5;
-    return `M ${x1},${y1} C ${x1},${y1 + cp} ${x2},${y2 - cp} ${x2},${y2}`;
+
+  // Vertical connections (top/bottom edges)
+  if ((rel.fromSide === "top" || rel.fromSide === "bottom") &&
+      (rel.toSide === "top" || rel.toSide === "bottom")) {
+    if (dx < 4) {
+      // Perfectly vertical: straight line
+      return `M ${x1},${y1} L ${x2},${y2}`;
+    }
+    const cp = Math.max(30, dy * 0.4);
+    const c1y = rel.fromSide === "top" ? y1 - cp : y1 + cp;
+    const c2y = rel.toSide === "top"   ? y2 - cp : y2 + cp;
+    return `M ${x1},${y1} C ${x1},${c1y} ${x2},${c2y} ${x2},${y2}`;
   }
 
-  // Horizontal bezier
-  const cp = Math.max(60, dx * 0.5);
-  const cx1 = rel.fromSide === "right" ? x1 + cp : x1 - cp;
-  const cx2 = rel.toSide === "left" ? x2 - cp : x2 + cp;
-  return `M ${x1},${y1} C ${cx1},${y1} ${cx2},${y2} ${x2},${y2}`;
+  // Diagonal bezier (horizontal axis primary)
+  const cp = Math.max(60, Math.max(dx, dy) * 0.5);
+  const cx1 = rel.fromSide === "right" ? x1 + cp : rel.fromSide === "left" ? x1 - cp : x1;
+  const cx2 = rel.toSide === "left"   ? x2 - cp : rel.toSide === "right"   ? x2 + cp : x2;
+  const cy1 = rel.fromSide === "top"   ? y1 - cp : rel.fromSide === "bottom" ? y1 + cp : y1;
+  const cy2 = rel.toSide === "top"     ? y2 - cp : rel.toSide === "bottom"   ? y2 + cp : y2;
+  return `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`;
 }
 
 // ─── OLTP ────────────────────────────────────────────────────────────────────
@@ -165,9 +176,16 @@ const OLTP_RELS: Rel[] = [
 
 // ─── OLAP ────────────────────────────────────────────────────────────────────
 
+// Star layout: fact center=(500,500), radius=340, 6 dims at 60° intervals starting from top (0°)
+// Angles (clockwise from top): 0°=dim_date, 60°=dim_agency, 120°=dim_location,
+//   180°=dim_channel, 240°=dim_status, 300°=dim_complaint
+// sin/cos for CSS coords (y increases down): dx=r*sin(θ), dy=-r*cos(θ)
+// Box positions: center_x - w/2, center_y - h/2
+
 const OLAP_TABLES: Tbl[] = [
   {
-    id: "dim_date", schema: "olap", name: "dim_date", x: 340, y: 10, w: 225,
+    // 0° (top, 12 o'clock): center=(500, 160)
+    id: "dim_date", schema: "olap", name: "dim_date", x: 388, y: 30, w: 225,
     cols: [
       { name: "date_key", type: "int", role: "PK" },
       { name: "date", type: "date", role: null },
@@ -180,15 +198,8 @@ const OLAP_TABLES: Tbl[] = [
     ],
   },
   {
-    id: "dim_complaint", schema: "olap", name: "dim_complaint", x: 20, y: 190,
-    cols: [
-      { name: "complaint_key", type: "int", role: "PK" },
-      { name: "complaint_type", type: "varchar", role: null },
-      { name: "descriptor", type: "varchar", role: null },
-    ],
-  },
-  {
-    id: "dim_agency", schema: "olap", name: "dim_agency", x: 730, y: 100,
+    // 60° (upper-right, 2 o'clock): center=(795, 330)  dx=+295, dy=-170
+    id: "dim_agency", schema: "olap", name: "dim_agency", x: 685, y: 265, w: 220,
     cols: [
       { name: "agency_key", type: "int", role: "PK" },
       { name: "code", type: "varchar", role: null },
@@ -196,7 +207,43 @@ const OLAP_TABLES: Tbl[] = [
     ],
   },
   {
-    id: "fact_service_request", schema: "olap", name: "fact_service_request", x: 340, y: 280, w: 265,
+    // 120° (lower-right, 4 o'clock): center=(795, 670)  dx=+295, dy=+170
+    id: "dim_location", schema: "olap", name: "dim_location", x: 685, y: 593, w: 220,
+    cols: [
+      { name: "location_key", type: "int", role: "PK" },
+      { name: "borough", type: "varchar", role: null },
+      { name: "zip_code", type: "varchar", role: null },
+      { name: "community_board", type: "varchar", role: null },
+    ],
+  },
+  {
+    // 180° (bottom, 6 o'clock): center=(500, 840)  dx=0, dy=+340
+    id: "dim_channel", schema: "olap", name: "dim_channel", x: 390, y: 787, w: 220,
+    cols: [
+      { name: "channel_key", type: "int", role: "PK" },
+      { name: "name", type: "varchar", role: null },
+    ],
+  },
+  {
+    // 240° (lower-left, 8 o'clock): center=(205, 670)  dx=-295, dy=+170
+    id: "dim_status", schema: "olap", name: "dim_status", x: 95, y: 617, w: 220,
+    cols: [
+      { name: "status_key", type: "int", role: "PK" },
+      { name: "name", type: "varchar", role: null },
+    ],
+  },
+  {
+    // 300° (upper-left, 10 o'clock): center=(205, 330)  dx=-295, dy=-170
+    id: "dim_complaint", schema: "olap", name: "dim_complaint", x: 95, y: 265, w: 220,
+    cols: [
+      { name: "complaint_key", type: "int", role: "PK" },
+      { name: "complaint_type", type: "varchar", role: null },
+      { name: "descriptor", type: "varchar", role: null },
+    ],
+  },
+  {
+    // Center of the star
+    id: "fact_service_request", schema: "olap", name: "fact_service_request", x: 368, y: 315, w: 265,
     cols: [
       { name: "request_id", type: "bigint", role: "PK" },
       { name: "date_key", type: "int", role: "FK" },
@@ -213,38 +260,15 @@ const OLAP_TABLES: Tbl[] = [
       { name: "closed_within_30d", type: "boolean", role: null },
     ],
   },
-  {
-    id: "dim_status", schema: "olap", name: "dim_status", x: 20, y: 510,
-    cols: [
-      { name: "status_key", type: "int", role: "PK" },
-      { name: "name", type: "varchar", role: null },
-    ],
-  },
-  {
-    id: "dim_location", schema: "olap", name: "dim_location", x: 730, y: 380,
-    cols: [
-      { name: "location_key", type: "int", role: "PK" },
-      { name: "borough", type: "varchar", role: null },
-      { name: "zip_code", type: "varchar", role: null },
-      { name: "community_board", type: "varchar", role: null },
-    ],
-  },
-  {
-    id: "dim_channel", schema: "olap", name: "dim_channel", x: 370, y: 640,
-    cols: [
-      { name: "channel_key", type: "int", role: "PK" },
-      { name: "name", type: "varchar", role: null },
-    ],
-  },
 ];
 
 const OLAP_RELS: Rel[] = [
-  { from: "fact_service_request", to: "dim_date",      fromSide: "top",   toSide: "bottom" },
-  { from: "fact_service_request", to: "dim_agency",    fromSide: "right", toSide: "left"   },
-  { from: "fact_service_request", to: "dim_complaint", fromSide: "left",  toSide: "right"  },
-  { from: "fact_service_request", to: "dim_location",  fromSide: "right", toSide: "left"   },
-  { from: "fact_service_request", to: "dim_status",    fromSide: "left",  toSide: "right"  },
-  { from: "fact_service_request", to: "dim_channel",   fromSide: "bottom", toSide: "top"   },
+  { from: "fact_service_request", to: "dim_date",      fromSide: "top",    toSide: "bottom" },
+  { from: "fact_service_request", to: "dim_agency",    fromSide: "right",  toSide: "left"   },
+  { from: "fact_service_request", to: "dim_location",  fromSide: "right",  toSide: "left"   },
+  { from: "fact_service_request", to: "dim_channel",   fromSide: "bottom", toSide: "top"    },
+  { from: "fact_service_request", to: "dim_status",    fromSide: "left",   toSide: "right"  },
+  { from: "fact_service_request", to: "dim_complaint", fromSide: "left",   toSide: "right"  },
 ];
 
 // ─── Staging ─────────────────────────────────────────────────────────────────
@@ -485,9 +509,9 @@ export function SchemaViewer() {
           tables={OLAP_TABLES}
           rels={OLAP_RELS}
           tab="olap"
-          canvasW={980}
-          canvasH={760}
-          note="Esquema estrella — fact_service_request en el centro · 6 dimensiones radiales"
+          canvasW={940}
+          canvasH={910}
+          note="Esquema estrella — fact_service_request en el centro · 6 dimensiones radiales a 60°"
         />
       )}
       {active === "staging" && (
