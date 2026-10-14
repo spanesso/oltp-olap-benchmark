@@ -49,9 +49,12 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
 
 const BOROUGH_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#3b82f6", "#ec4899"];
 
+const ENV_KEY = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) ?? "";
+
 export function BoroughMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const [apiKey, setApiKey] = useState(() => {
+    if (ENV_KEY) return ENV_KEY;
     try { return localStorage.getItem("gmaps_api_key") ?? ""; } catch { return ""; }
   });
   const [keyDraft, setKeyDraft] = useState(apiKey);
@@ -220,12 +223,14 @@ export function BoroughMap() {
                   </span>
                 </div>
               ))}
-            <button
-              className="map-reset-key"
-              onClick={() => { setApiKey(""); setKeyDraft(""); try { localStorage.removeItem("gmaps_api_key"); } catch { /* */ } }}
-            >
-              Change key
-            </button>
+            {!ENV_KEY && (
+              <button
+                className="map-reset-key"
+                onClick={() => { setApiKey(""); setKeyDraft(""); try { localStorage.removeItem("gmaps_api_key"); } catch { /* */ } }}
+              >
+                Change key
+              </button>
+            )}
           </div>
         )}
       </div>
