@@ -132,6 +132,30 @@ NYC 311 API ──▶ staging (PostgreSQL) ──▶ OLTP model (PostgreSQL, 3NF
 5. **Report**: the runner writes a JSON file with every run and a Markdown summary with
    medians, 95th percentiles, speedup factors, and the significance verdict.
 
+## Data models
+
+### OLTP: normalized model (PostgreSQL, third normal form)
+
+Eight tables. Every descriptive value is stored once and referenced by key, so
+`service_request` holds only identifiers and the two timestamps; reading a request with
+its names takes up to seven joins.
+
+![OLTP model: service_request in the center, referencing agency, complaint_descriptor (which references complaint_type), location (which references borough), channel and status](docs/images/oltp-normalized-model.png)
+
+### OLAP: star schema (DuckDB)
+
+One fact table and six denormalized dimensions. `dim_complaint` merges complaint type and
+descriptor, and `dim_location` carries the borough name, so a query needs at most one join
+per dimension. The fact table stores measures that the OLTP model computes at query time.
+
+![OLAP star schema: fact_service_request in the center surrounded by dim_date, dim_agency, dim_location, dim_channel, dim_status and dim_complaint](docs/images/olap-star-schema.png)
+
+The diagram does not draw two boolean columns of the fact table, `has_valid_resolution` and
+`closed_within_30d` (14 columns in total; see [`sql/olap/schema.sql`](sql/olap/schema.sql)).
+`created_hour`, `is_closed`, `resolution_hours` and those two flags are the precomputed
+measures. The model definitions are in [`sql/oltp/schema.sql`](sql/oltp/schema.sql) and
+[`sql/olap/schema.sql`](sql/olap/schema.sql).
+
 ## Dashboard
 
 A React dashboard reads `results/benchmark_full.json` (and `experiments_full.json` when it
